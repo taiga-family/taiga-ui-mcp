@@ -1,46 +1,36 @@
 # Taiga UI MCP Server
 
-Model Context Protocol (MCP) server that exposes Taiga UI documentation as two concise tools for assistants / LLM clients.
+> **🚀 The fastest way to integrate Taiga UI components into your AI workflow**
+
+A Model Context Protocol (MCP) server that provides AI assistants with comprehensive access to [Taiga UI](https://taiga-ui.dev) components. Seamlessly retrieve Taiga UI components implementations for your AI-powered development workflow.
+
+## Integrate with Your Editor
+
+### VS Code
+
+To configure MCP in VS Code with GitHub Copilot, add the taiga-ui server to your project's `.vscode/mcp.json` configuration file:
+
+```json
+{
+    "mcpServers": {
+        "taiga-ui": {
+            "command": "npx",
+            "args": [
+                "taiga-ui-mcp@latest",
+                "--source-url=https://taiga-ui.dev/llms-full.txt" // or file from "/next" version, if you want
+            ]
+        }
+    }
+}
+```
 
 ## Provided Tools
 
-1. get_list_components
+1. `get_list_components { query?: string }`
 
     - Lists component / section identifiers (with fuzzy substring filtering) along with basic metadata (category, package, type).
     - Input: optional `query` string to filter IDs (case-insensitive substring).
     - Output: `{ items: [...], total, query }` strictly structured JSON.
-
-2. get_component_example
-    - Returns example code snippet blocks (fenced code) for specified section names; applies fuzzy name resolution (variants: exact, segment, suffix, substring with Tui\* variants).
-    - Input: `{ names: string[] }` (each >= 2 chars).
-    - Output: per name object with `found`, `id`, `package`, `type`, `suggestions` (if not found), and `examples`.
-
-## Usage
-
-Install dependencies and build:
-
-```bash
-npm ci
-npm run build
-```
-
-Run the server directly (stdio):
-
-```bash
-./build/index.js
-```
-
-Or via the installed bin after global/local install:
-
-```bash
-npx taiga-ui-mcp
-```
-
-Then connect your MCP-compatible client (e.g., an IDE integration) pointing to the executable.
-
-## Example Tool Invocations (Conceptual)
-
-get_list_components { }
 
 ```
 {
@@ -52,7 +42,11 @@ get_list_components { }
 }
 ```
 
-get_component_example { "names": ["Alert"] }
+2. `get_component_example { "names": ["...", "..."] }`
+
+    - Returns example code snippet blocks (fenced code) for specified section names; applies fuzzy name resolution (variants: exact, segment, suffix, substring with Tui\* variants).
+    - Input: `{ names: string[] }` (each >= 2 chars).
+    - Output: per name object with `found`, `id`, `package`, `type`, `suggestions` (if not found), and `examples`.
 
 ```
 {
