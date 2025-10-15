@@ -2,20 +2,23 @@ import { DocSection } from '../schemas/doc-types.js';
 import { state } from '../server/server.js';
 
 export function findSection(name: string): DocSection | undefined {
-    const lowerName = name.toLowerCase();
-
-    const wordParts = lowerName.split(/[-_\s]+/).filter(Boolean);
-    const pascalCase = wordParts
+    const pascalCase = name
+        .toLowerCase()
+        .split(/[-_\s]+/)
+        .filter(Boolean)
         .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
         .join('');
+
     const camelCase = pascalCase
         ? pascalCase.charAt(0).toLowerCase() + pascalCase.slice(1)
         : '';
+
     const tuiVariant = pascalCase.startsWith('Tui')
         ? pascalCase
         : 'Tui' + pascalCase;
+
     const variants = [
-        lowerName,
+        name.toLowerCase(),
         pascalCase,
         camelCase,
         tuiVariant,
@@ -27,6 +30,7 @@ export function findSection(name: string): DocSection | undefined {
         const exactMatch = state.sections.find(
             (section) => section.id.toLowerCase() === variant.toLowerCase()
         );
+
         if (exactMatch) return exactMatch;
     }
 
@@ -37,6 +41,7 @@ export function findSection(name: string): DocSection | undefined {
                 section.id.split('/').pop()?.toLowerCase() ===
                 variant.toLowerCase()
         );
+
         if (segmentMatch) return segmentMatch;
     }
 
@@ -50,8 +55,9 @@ export function findSection(name: string): DocSection | undefined {
 
     // Substring fallback
     const substringMatch = state.sections.find((section) =>
-        section.id.toLowerCase().includes(lowerName)
+        section.id.toLowerCase().includes(name.toLowerCase())
     );
+
     if (substringMatch) return substringMatch;
 
     return undefined;

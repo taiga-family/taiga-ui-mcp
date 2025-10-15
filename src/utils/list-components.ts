@@ -4,8 +4,8 @@ export interface ListedComponent {
     id: string;
     name: string;
     category: string;
-    package: string;
-    type: string;
+    package: string | null;
+    type: string | null;
 }
 
 export function constructComponentsList(query?: string): {
@@ -21,15 +21,16 @@ export function constructComponentsList(query?: string): {
                 section.id.toLowerCase().includes(normalizedQuery)
         )
         .map((section) => {
-            const name = section.id.split('/').pop() || section.id;
-            const category = section.id.split('/')[0];
+            const idParts = section.id.split('/');
+            const name = idParts[idParts.length - 1] || section.id;
+            const category = idParts[0] || '';
 
             return {
                 id: section.id,
                 name,
                 category,
-                package: section.package || '',
-                type: section.kind || '',
+                package: section.package ?? null,
+                type: section.kind ?? null,
             };
         });
 

@@ -16,7 +16,9 @@ export async function fetchSource(): Promise<{ url: string; content: string }> {
 
     const response = await fetch(sourceUrl).catch((error: any) => {
         throw new Error(
-            `Network error fetching documentation source: ${error?.message || error}`
+            `Network error fetching documentation source: ${
+                error?.message || error
+            }`
         );
     });
 

@@ -24,12 +24,15 @@ export function parseContent(rawContent: string, sourceUrl: string): void {
         const headerMatch = /^#\s+(.+)$/.exec(lines[lineIndex]);
 
         if (headerMatch)
-            headerIndices.push({ line: lineIndex, title: headerMatch[1].trim() });
+            headerIndices.push({
+                line: lineIndex,
+                title: headerMatch[1].trim(),
+            });
     }
 
-    state.sections = headerIndices.map((header, idx): DocSection => {
+    state.sections = headerIndices.map((header, headerIndex): DocSection => {
         const start = header.line;
-        const end = headerIndices[idx + 1]?.line ?? lines.length;
+        const end = headerIndices[headerIndex + 1]?.line ?? lines.length;
         const content = lines.slice(start, end).join('\n');
         const meta = extractMeta(content);
 

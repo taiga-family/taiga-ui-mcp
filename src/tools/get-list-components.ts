@@ -17,8 +17,8 @@ export function registerGetListComponentsTool(server: McpServer) {
                         id: z.string(),
                         name: z.string(),
                         category: z.string(),
-                        package: z.string(),
-                        type: z.string(),
+                        package: z.string().nullable(),
+                        type: z.string().nullable(),
                     })
                 ),
                 total: z.number(),

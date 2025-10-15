@@ -44,7 +44,7 @@ To configure MCP in VS Code with GitHub Copilot, add the taiga-ui server to your
 
 2. `get_component_example { "names": ["...", "..."] }`
 
-    - Returns fenced code blocks found under a "### Example" subsection of the specified section (if any). Applies fuzzy name resolution (variants: exact, segment, suffix, substring with Tui* variants).
+    - Returns the full markdown content of each resolved section (entire component documentation). Applies fuzzy name resolution (variants: exact, segment, suffix, substring with Tui\* variants).
     - Input: `{ names: string[] }` (each >= 2 chars).
     - Output: per name object with `id` (present only if resolved), `package`, `type`, `suggestions` (only when unresolved), and `content` (array of code strings when example blocks exist; omitted otherwise). Top-level also includes `matched` (count of resolved names).
 
@@ -56,7 +56,7 @@ To configure MCP in VS Code with GitHub Copilot, add the taiga-ui server to your
          "id": "components/Alert",
          "package": "CORE",
          "type": "component",
-         "content": ["<tui-alert appearance=\"...\">...</tui-alert>"]
+         "content": ["# components/Alert\n- **Package**: ... (full section markdown here)"]
       }
    ],
     "matched": 1
