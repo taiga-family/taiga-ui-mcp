@@ -21,45 +21,22 @@ export function parseContent(rawContent: string, sourceUrl: string): void {
     const headerIndices: { line: number; title: string }[] = [];
 
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-        const line = lines[lineIndex];
-        const headerMatch = /^#\s+(.+)$/.exec(line);
+        const headerMatch = /^#\s+(.+)$/.exec(lines[lineIndex]);
 
-        if (headerMatch) {
-            headerIndices.push({
-                line: lineIndex,
-                title: headerMatch[1].trim(),
-            });
-        }
+        if (headerMatch)
+            headerIndices.push({ line: lineIndex, title: headerMatch[1].trim() });
     }
 
-    const lineStartBytes: number[] = new Array(lines.length + 1);
-
-    let offset = 0;
-
-    for (let i = 0; i < lines.length; i++) {
-        lineStartBytes[i] = offset;
-
-        // UTF-8 byte length of line + one byte for assumed '\n'
-        offset += Buffer.byteLength(lines[i], 'utf8') + 1;
-    }
-
-    lineStartBytes[lines.length] = offset;
-
-    state.sections = headerIndices.map((header, headerIndex): DocSection => {
+    state.sections = headerIndices.map((header, idx): DocSection => {
         const start = header.line;
-        const end = headerIndices[headerIndex + 1]?.line ?? lines.length;
-        const startByte = lineStartBytes[start];
-        const endByte = lineStartBytes[end];
-        const sectionText = lines.slice(start, end).join('\n');
-        const meta = extractMeta(sectionText);
+        const end = headerIndices[idx + 1]?.line ?? lines.length;
+        const content = lines.slice(start, end).join('\n');
+        const meta = extractMeta(content);
 
         return {
             id: header.title,
             title: header.title,
-            start,
-            end,
-            startByte,
-            endByte,
+            content,
             package: meta.package,
             kind: meta.kind,
         };

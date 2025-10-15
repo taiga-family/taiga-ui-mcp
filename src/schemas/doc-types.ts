@@ -1,21 +1,16 @@
 export interface QueryResult {
     query: string;
-    found: boolean;
     id?: string;
     package?: string | null;
     type?: string | null;
     suggestions?: string[];
-    examples?: string[];
-    examplesReturned?: number;
+    content?: string[];
 }
 
 export interface DocSection {
     id: string;
     title: string;
-    start: number;
-    end: number;
-    startByte?: number;
-    endByte?: number;
+    content: string;
     package?: string;
     kind?: string;
 }

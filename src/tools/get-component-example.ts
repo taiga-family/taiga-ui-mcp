@@ -9,23 +9,20 @@ export function registerGetComponentExampleTool(server: McpServer) {
         {
             title: 'Get Component Example',
             description:
-                'Return example code snippets (structured JSON only) for specified documentation section name(s).',
+                'Return section-related content snippets (formerly examples) for specified documentation section name(s). The presence of id indicates a successful match.',
             inputSchema: { names: z.array(z.string().min(2)).min(1) },
             outputSchema: {
                 results: z.array(
                     z.object({
                         query: z.string(),
-                        found: z.boolean(),
                         id: z.string().optional(),
                         package: z.string().nullable().optional(),
                         type: z.string().nullable().optional(),
                         suggestions: z.array(z.string()).optional(),
-                        examples: z.array(z.string()).optional(),
-                        examplesReturned: z.number().optional(),
+                        content: z.array(z.string()).optional(),
                     })
                 ),
-                totalQueries: z.number(),
-                matches: z.number(),
+                matched: z.number(),
             },
         },
         async ({ names }: { names: string[] }) => {
@@ -45,12 +42,7 @@ export function registerGetComponentExampleTool(server: McpServer) {
             await ensureSourceLoaded();
 
             const { results, matches } = buildQueryResults(names);
-
-            const output = {
-                results,
-                totalQueries: names.length,
-                matches,
-            };
+            const output = { results, matched: matches };
 
             return {
                 content: [

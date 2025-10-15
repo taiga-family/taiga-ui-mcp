@@ -8,17 +8,11 @@ import { DocSection } from '../schemas/doc-types.js';
 export interface IndexState {
     sections: DocSection[];
     sourceUrl?: string;
-    cacheFilePath?: string;
-    hash?: string;
-    etag?: string;
 }
 
 export const state: IndexState = {
     sections: [],
     sourceUrl: undefined,
-    cacheFilePath: undefined,
-    hash: undefined,
-    etag: undefined,
 };
 
 const server = new McpServer({
@@ -31,8 +25,8 @@ registerAllTools(server);
 export async function start() {
     try {
         await ensureSourceLoaded();
-    } catch (e) {
-        console.error('Initial source load failed:', e);
+    } catch (error) {
+        console.error('Initial source load failed:', error);
     }
 
     const transport = new StdioServerTransport();

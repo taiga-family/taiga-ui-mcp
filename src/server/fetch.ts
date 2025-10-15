@@ -1,13 +1,7 @@
 import { state } from './server.js';
 import { parseContent } from '../utils/parse-content.js';
-import { fetchWithCache } from './cache.js';
 
-export async function fetchSource(): Promise<{
-    url: string;
-    content: string;
-    cacheFilePath: string;
-    hash: string;
-}> {
+export async function fetchSource(): Promise<{ url: string; content: string }> {
     const argProvidedUrl = process.argv
         .find((arg) => arg.startsWith('--source-url='))
         ?.split('=')[1];
@@ -20,26 +14,29 @@ export async function fetchSource(): Promise<{
         );
     }
 
-    try {
-        const { content, cacheFilePath, hash } = await fetchWithCache(
-            sourceUrl
+    const response = await fetch(sourceUrl).catch((error: any) => {
+        throw new Error(
+            `Network error fetching documentation source: ${error?.message || error}`
+        );
+    });
+
+    if (!response.ok)
+        throw new Error(
+            `Failed to fetch documentation (HTTP ${response.status} ${response.statusText}) from ${sourceUrl}`
         );
 
-        return { url: sourceUrl, content, cacheFilePath, hash };
-    } catch (err: any) {
-        const reason = err?.message || String(err);
+    const content = await response.text();
 
-        throw new Error(`Unable to load documentation source: ${reason}`);
-    }
+    if (!content.trim())
+        throw new Error(`Fetched documentation from ${sourceUrl} is empty.`);
+
+    return { url: sourceUrl, content };
 }
 
 export async function ensureSourceLoaded(): Promise<void> {
     if (state.sections.length > 0) return;
 
-    const { url, content, cacheFilePath, hash } = await fetchSource();
-
-    state.cacheFilePath = cacheFilePath;
-    state.hash = hash;
+    const { url, content } = await fetchSource();
 
     parseContent(content, url);
 }
