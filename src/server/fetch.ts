@@ -1,6 +1,9 @@
 import { state } from './server.js';
 import { parseContent } from '../utils/parse-content.js';
 
+// 6-hour refresh window
+const REFRESH_INTERVAL_MS = 6 * 60 * 60 * 1000;
+
 export async function fetchSource(): Promise<{ url: string; content: string }> {
     const argProvidedUrl = process.argv
         .find((arg) => arg.startsWith('--source-url='))
@@ -36,9 +39,15 @@ export async function fetchSource(): Promise<{ url: string; content: string }> {
 }
 
 export async function ensureSourceLoaded(): Promise<void> {
-    if (state.sections.length > 0) return;
+    const isContentStale =
+        !state.lastLoadedAt ||
+        Date.now() - state.lastLoadedAt > REFRESH_INTERVAL_MS;
 
-    const { url, content } = await fetchSource();
+    if (!(state.sections.length > 0) || isContentStale) {
+        const { url, content } = await fetchSource();
 
-    parseContent(content, url);
+        parseContent(content, url);
+
+        state.lastLoadedAt = Date.now();
+    }
 }

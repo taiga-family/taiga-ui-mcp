@@ -8,11 +8,13 @@ import { DocSection } from '../schemas/doc-types.js';
 export interface IndexState {
     sections: DocSection[];
     sourceUrl?: string;
+    lastLoadedAt?: number;
 }
 
 export const state: IndexState = {
     sections: [],
     sourceUrl: undefined,
+    lastLoadedAt: undefined,
 };
 
 const server = new McpServer({
