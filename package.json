@@ -1,0 +1,47 @@
+{
+    "name": "taiga-ui-mcp",
+    "version": "1.0.0",
+    "description": "Model Context Protocol server providing Taiga UI documentation search and scaffolding tools.",
+    "type": "module",
+    "main": "./build/index.js",
+    "bin": {
+        "taiga-ui-mcp": "./build/index.js"
+    },
+    "files": [
+        "build/**/*",
+        "README.md",
+        "LICENSE"
+    ],
+    "keywords": [
+        "mcp",
+        "model-context-protocol",
+        "taiga-ui",
+        "taiga-ui-mcp",
+        "ui-components",
+        "typescript",
+        "ai-tools",
+        "claude",
+        "copilot"
+    ],
+    "license": "Apache-2.0",
+    "homepage": "https://github.com/taiga-family/taiga-ui-mcp#README",
+    "bugs": "https://github.com/taiga-family/taiga-ui-mcp/issues",
+    "repository": "https://github.com/taiga-family/taiga-ui-mcp",
+    "authors": [
+        "Vladimir Potekhin <vladimir.potekh@gmail.com>",
+        "German Panov <zidakbew@gmail.com>"
+    ],
+    "scripts": {
+        "start": "node build/index.js",
+        "clean": "rm -rf build",
+        "build": "npm run clean && tsc && chmod +x build/index.js"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.20.0",
+        "zod": "^3.25.76"
+    },
+    "devDependencies": {
+        "@types/node": "^24.7.2",
+        "typescript": "^5.9.3"
+    }
+}
