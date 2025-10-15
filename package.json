@@ -1,5 +1,5 @@
 {
-    "name": "taiga-ui-mcp",
+    "name": "@taiga-ui/mcp",
     "version": "1.0.0",
     "description": "Model Context Protocol server providing Taiga UI documentation search and scaffolding tools.",
     "type": "module",
