@@ -3,12 +3,12 @@
     "version": "0.1.0-alpha.0",
     "description": "Model Context Protocol server providing Taiga UI documentation search and scaffolding tools.",
     "type": "module",
-    "main": "./build/index.js",
+    "main": "./dist/index.js",
     "bin": {
-        "taiga-ui-mcp": "./build/index.js"
+        "taiga-ui-mcp": "./dist/index.js"
     },
     "files": [
-        "build/**/*",
+        "dist/**/*",
         "README.md",
         "LICENSE"
     ],
@@ -37,10 +37,11 @@
         "German Panov <zidakbew@gmail.com>"
     ],
     "scripts": {
-        "start": "node build/index.js",
-        "clean": "rm -rf build",
-        "build": "npm run clean && tsc && chmod +x build/index.js",
-        "release:alpha": "release-it --preRelease=alpha"
+        "start": "node dist/index.js",
+        "clean": "rm -rf dist",
+        "build": "npm run clean && tsc && chmod +x dist/index.js",
+        "prepublishOnly": "npm run build",
+        "release": "npm publish --access public"
     },
     "engines": {
         "node": ">=18.0.0"
