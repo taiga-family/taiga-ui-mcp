@@ -51,6 +51,7 @@
     },
     "devDependencies": {
         "@taiga-ui/release-it-config": "0.344.0",
+        "@taiga-ui/auto-changelog-config": "0.344.0",
         "@types/node": "^24.7.2",
         "typescript": "^5.9.3"
     },
