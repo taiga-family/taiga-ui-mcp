@@ -19,7 +19,7 @@ export const state: IndexState = {
 
 const server = new McpServer({
     name: 'taiga-ui-mcp',
-    version: '0.1.0-aplha.1',
+    version: '0.1.0-alpha.1',
 });
 
 registerAllTools(server);

@@ -41,7 +41,7 @@
         "clean": "rm -rf dist",
         "build": "npm run clean && tsc && chmod +x dist/index.js",
         "prepublishOnly": "npm run build",
-        "release": "npm run build && npm publish --access public"
+        "release": "npm run build && npm publish --access public --tag alpha"
     },
     "engines": {
         "node": ">=18.0.0"
