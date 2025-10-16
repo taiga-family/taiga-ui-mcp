@@ -1,0 +1,29 @@
+{
+  "git": {
+    "tagName": "v${version}",
+    "commitMessage": "chore: release v${version}",
+    "requireCleanWorkingDir": true
+  },
+  "npm": {
+    "publish": true,
+    "skipChecks": false
+  },
+  "github": {
+    "release": true,
+    "draft": false,
+    "preRelease": true,
+    "tagName": "v${version}"
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "conventionalcommits",
+      "infile": "CHANGELOG.md"
+    }
+  },
+  "hooks": {
+    "before:init": ["npm run build"],
+    "after:release": ["echo Released v${version}"]
+  },
+  "gitlab": false,
+  "preReleaseId": "alpha"
+}

@@ -1,6 +1,6 @@
 {
     "name": "@taiga-ui/mcp",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "description": "Model Context Protocol server providing Taiga UI documentation search and scaffolding tools.",
     "type": "module",
     "main": "./build/index.js",
@@ -34,7 +34,8 @@
     "scripts": {
         "start": "node build/index.js",
         "clean": "rm -rf build",
-        "build": "npm run clean && tsc && chmod +x build/index.js"
+        "build": "npm run clean && tsc && chmod +x build/index.js",
+        "release:alpha": "release-it --preRelease=alpha"
     },
     "engines": {
         "node": ">=18.0.0"
@@ -44,7 +45,9 @@
         "zod": "^3.25.76"
     },
     "devDependencies": {
+        "@release-it/conventional-changelog": "^10.0.1",
         "@types/node": "^24.7.2",
+        "release-it": "^19.0.5",
         "typescript": "^5.9.3"
     }
 }
