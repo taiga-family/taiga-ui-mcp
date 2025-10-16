@@ -12,7 +12,7 @@ To configure MCP in VS Code with GitHub Copilot, add the taiga-ui server to your
 
 ```json
 {
-    "mcpServers": {
+    "servers": {
         "taiga-ui": {
             "command": "npx",
             "args": [
