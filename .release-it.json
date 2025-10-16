@@ -6,7 +6,8 @@
   },
   "npm": {
     "publish": true,
-    "skipChecks": false
+    "skipChecks": false,
+    "access": "public"
   },
   "github": {
     "release": true,
