@@ -1,6 +1,7 @@
 ## Taiga UI MCP Server
 
 [![MCP Badge](https://lobehub.com/badge/mcp/taiga-family-taiga-ui-mcp?style=plastic)](https://lobehub.com/mcp/taiga-family-taiga-ui-mcp)
+[![npm version](https://img.shields.io/npm/v/@taiga-ui/mcp.svg)](https://npmjs.com/package/@taiga-ui/mcp)
 
 > 🚧 **Alpha Release**  
 > `@taiga-ui/mcp` is currently in **alpha**.
