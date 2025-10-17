@@ -2,8 +2,6 @@
 
 [![MCP Badge](https://lobehub.com/badge/mcp/taiga-family-taiga-ui-mcp?style=plastic)](https://lobehub.com/mcp/taiga-family-taiga-ui-mcp)
 
-[![MCP Badge](https://lobehub.com/badge/mcp-full/taiga-family-taiga-ui-mcp)](https://lobehub.com/mcp/taiga-family-taiga-ui-mcp)
-
 > **🚀 The fastest way to integrate Taiga UI components into your AI workflow**
 
 A Model Context Protocol (MCP) server that provides AI assistants with comprehensive access to [Taiga UI](https://taiga-ui.dev) components. Seamlessly retrieve Taiga UI components implementations for your AI-powered development workflow.
