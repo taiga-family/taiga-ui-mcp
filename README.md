@@ -2,6 +2,9 @@
 
 [![MCP Badge](https://lobehub.com/badge/mcp/taiga-family-taiga-ui-mcp?style=plastic)](https://lobehub.com/mcp/taiga-family-taiga-ui-mcp)
 
+> 🚧 **Alpha Release**  
+> `@taiga-ui/mcp` is currently in **alpha**.  
+
 > **🚀 The fastest way to integrate Taiga UI components into your AI workflow**
 
 A Model Context Protocol (MCP) server that provides AI assistants with comprehensive access to [Taiga UI](https://taiga-ui.dev) components. Seamlessly retrieve Taiga UI components implementations for your AI-powered development workflow.
@@ -18,7 +21,7 @@ For `.vscode/mcp.json` or `.cursor/mcp.json`:
         "taiga-ui": {
             "command": "npx",
             "args": [
-                "@taiga-ui/mcp@latest",
+                "@taiga-ui/mcp@latest", // now @taiga-ui/mcp@alpha to fetch most actual version
                 "--source-url=https://taiga-ui.dev/llms-full.txt" // or file from "/next" version, if you want
             ]
         }
