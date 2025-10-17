@@ -90,7 +90,7 @@ First, install the Taiga UI MCP server with your client.
 
 ### Maintained
 
-Maskito is a part of [Taiga UI](https://github.com/taiga-family/taiga-ui) libraries family which is backed and used by a
+Taiga UI MCP is a part of [Taiga UI](https://github.com/taiga-family/taiga-ui) libraries family which is backed and used by a
 large enterprise. This means you can rely on timely support and continuous development.
 
 ### Authors
