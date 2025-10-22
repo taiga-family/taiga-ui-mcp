@@ -8,11 +8,11 @@ export interface ListedComponent {
     type: string | null;
 }
 
-export function constructComponentsList(query?: string): {
+export function constructComponentsList(query = ''): {
     items: ListedComponent[];
     normalizedQuery: string | null;
 } {
-    const normalizedQuery = query ? query.toLowerCase() : null;
+    const normalizedQuery = query?.toLowerCase().replace(/^tui/, '');
 
     const items: ListedComponent[] = state.sections
         .filter(
