@@ -8,7 +8,7 @@ export interface ListedComponent {
     type: string | null;
 }
 
-export function constructComponentsList(query: string = ''): {
+export function constructComponentsList(query = ''): {
     items: ListedComponent[];
     normalizedQuery: string | null;
 } {
