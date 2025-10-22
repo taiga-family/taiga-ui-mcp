@@ -41,7 +41,8 @@
         "clean": "rm -rf dist",
         "build": "npm run clean && tsc && chmod +x dist/index.js",
         "prepublishOnly": "npm run build",
-        "release": "npm publish --access public --tag latest"
+        "release": "npm publish --access public --tag latest",
+        "postrelease": "npm dist-tag add @taiga-ui/mcp@$(node -p 'require(`./package.json`).version') alpha"
     },
     "engines": {
         "node": ">=18.0.0"
