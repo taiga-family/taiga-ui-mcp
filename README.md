@@ -27,7 +27,7 @@ First, install the Taiga UI MCP server with your client.
 
 **Standard config** works in most of the tools:
 
-```json
+```json5
 {
     "mcpServers": {
         "taiga-ui": {
@@ -52,7 +52,7 @@ First, install the Taiga UI MCP server with your client.
      - Input: optional `query` string to filter IDs (case-insensitive substring).
      - Output: strictly structured JSON containing `items`, `total`, `query`.
 
-```json
+```json5
 {
     "items": [
         { "id": "components/Alert", "name": "Alert", "category": "components", "package": "CORE", "type": "component" }
@@ -69,7 +69,7 @@ First, install the Taiga UI MCP server with your client.
      - Input: `{ names: string[] }` (each name length ≥ 2).
      - Output: `results` array with objects: `query`, `id` (if resolved), `package`, `type`, `suggestions` (only when unresolved), `content` (array of code blocks, if examples exist). Top-level also includes `matched` (count of resolved names).
 
-```json
+```json5
 {
     "results": [
         {
