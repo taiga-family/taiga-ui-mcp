@@ -37,6 +37,7 @@
         "German Panov <zidakbew@gmail.com>"
     ],
     "scripts": {
+        "prepare": "husky",
         "start": "node dist/index.js",
         "clean": "rm -rf dist",
         "build": "npm run clean && tsc && chmod +x dist/index.js",
@@ -93,6 +94,7 @@
         "@taiga-ui/release-it-config": "0.348.0",
         "@taiga-ui/stylelint-config": "0.348.0",
         "@taiga-ui/tsconfig": "0.348.0",
+        "husky": "9.1.7",
         "@types/node": "24.7.2",
         "typescript": "5.9.3"
     }
