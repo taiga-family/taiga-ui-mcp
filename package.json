@@ -37,13 +37,12 @@
         "*** Workflow ***": "",
         "start": "node dist/index.js",
         "clean": "rm -rf dist",
-        "build": "npm run clean && tsc && chmod +x dist/index.js",
+        "build": "npm run clean && tsc --incremental false && chmod 755 dist/index.js",
         "*** Format ***": "",
         "lint": "eslint .",
         "cspell": "cspell --relative --dot --gitignore .",
         "prettier": "prettier !package-lock.json . --ignore-path .gitignore",
-        "stylelint": "stylelint '**/*.{less,css}'",
-        "typecheck": "tsc --noEmit --strict --incremental false --tsBuildInfoFile null --project tsconfig.spec.json",
+        "typecheck": "tsc --noEmit --incremental false",
         "prepublishOnly": "npm run build",
         "release": "npm publish --access public --tag latest",
         "postrelease": "npm dist-tag add @taiga-ui/mcp@$(node -p 'require(`./package.json`).version') alpha"
@@ -57,25 +56,12 @@
         "*.{js,ts,html,md,less,json,svg,yml}": [
             "npm run lint -- --fix",
             "prettier --write"
-        ],
-        "*.less": [
-            "stylelint --fix"
         ]
     },
     "browserslist": [
         "extends @taiga-ui/browserslist-config"
     ],
     "prettier": "@taiga-ui/prettier-config",
-    "stylelint": {
-        "extends": [
-            "@taiga-ui/stylelint-config"
-        ],
-        "ignoreFiles": [
-            "**/dist/**",
-            "**/coverage/**",
-            "**/node_modules/**"
-        ]
-    },
     "dependencies": {
         "@modelcontextprotocol/sdk": "1.20.0",
         "zod": "3.25.76"
@@ -88,7 +74,6 @@
         "@taiga-ui/eslint-plugin-experience": "0.249.0",
         "@taiga-ui/prettier-config": "0.348.0",
         "@taiga-ui/release-it-config": "0.348.0",
-        "@taiga-ui/stylelint-config": "0.348.0",
         "@taiga-ui/tsconfig": "0.348.0",
         "@types/node": "24.7.2",
         "husky": "9.1.7",
