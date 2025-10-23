@@ -1,14 +1,17 @@
 {
+    "extends": "@taiga-ui/tsconfig",
     "compilerOptions": {
-        "target": "ES2022",
-        "module": "Node16",
-        "moduleResolution": "Node16",
+        "baseUrl": "./",
         "outDir": "./dist",
         "rootDir": "./src",
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "sourceMap": true,
+        "checkJs": false,
+        "types": ["node"],
+        "typeRoots": ["node_modules/@types", "node_modules/@taiga-ui/tsconfig"]
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules"]

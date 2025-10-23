@@ -2,16 +2,6 @@
     "name": "@taiga-ui/mcp",
     "version": "0.1.0-alpha.5",
     "description": "Model Context Protocol server providing Taiga UI documentation search and scaffolding tools.",
-    "type": "module",
-    "main": "./dist/index.js",
-    "bin": {
-        "taiga-ui-mcp": "./dist/index.js"
-    },
-    "files": [
-        "dist/**/*",
-        "README.md",
-        "LICENSE"
-    ],
     "keywords": [
         "mcp",
         "model-context-protocol",
@@ -23,7 +13,6 @@
         "claude",
         "copilot"
     ],
-    "license": "Apache-2.0",
     "homepage": "https://github.com/taiga-family/taiga-ui-mcp#README",
     "bugs": {
         "url": "https://github.com/taiga-family/taiga-ui-mcp/issues"
@@ -32,9 +21,16 @@
         "type": "git",
         "url": "git+https://github.com/taiga-family/taiga-ui-mcp.git"
     },
-    "authors": [
-        "Vladimir Potekhin <vladimir.potekh@gmail.com>",
-        "German Panov <zidakbew@gmail.com>"
+    "license": "Apache-2.0",
+    "type": "module",
+    "main": "./dist/index.js",
+    "bin": {
+        "taiga-ui-mcp": "./dist/index.js"
+    },
+    "files": [
+        "dist/**/*",
+        "README.md",
+        "LICENSE"
     ],
     "scripts": {
         "prepare": "husky",
@@ -80,9 +76,6 @@
             "**/node_modules/**"
         ]
     },
-    "engines": {
-        "node": ">=18.0.0"
-    },
     "dependencies": {
         "@modelcontextprotocol/sdk": "1.20.0",
         "zod": "3.25.76"
@@ -97,8 +90,16 @@
         "@taiga-ui/release-it-config": "0.348.0",
         "@taiga-ui/stylelint-config": "0.348.0",
         "@taiga-ui/tsconfig": "0.348.0",
-        "husky": "9.1.7",
         "@types/node": "24.7.2",
+        "husky": "9.1.7",
+        "lint-staged": "15.5.2",
         "typescript": "5.9.3"
-    }
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "authors": [
+        "Vladimir Potekhin <vladimir.potekh@gmail.com>",
+        "German Panov <zidakbew@gmail.com>"
+    ]
 }
