@@ -1,11 +1,13 @@
-import type { DocSection, QueryResult } from '../schemas/doc-types.js';
-import { findSection, suggestSections } from './find-section.js';
+import {type DocSection, type QueryResult} from '../schemas/doc-types.js';
+import {findSection, suggestSections} from './find-section.js';
 
 export function extractContentSnippets(section: DocSection): string[] {
     const text = section.content || '';
     const trimmed = text.trim();
 
-    if (!trimmed) return [];
+    if (!trimmed) {
+        return [];
+    }
 
     const cleaned = trimmed
         .split(/\r?\n/)
@@ -41,16 +43,18 @@ export function buildQueryResults(names: string[]): {
         const foundResult: QueryResult = {
             query: queryName,
             id: section.id,
-            package: section.package || null,
-            type: section.kind || null,
+            package: section.package ?? null,
+            type: section.kind ?? null,
         };
 
-        if (snippets.length) foundResult.content = snippets;
+        if (snippets.length) {
+            foundResult.content = snippets;
+        }
 
         results.push(foundResult);
     }
 
     const matches = results.filter((result) => !!result.id).length;
 
-    return { results, matches };
+    return {results, matches};
 }

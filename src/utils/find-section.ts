@@ -1,5 +1,5 @@
-import { DocSection } from '../schemas/doc-types.js';
-import { state } from '../server/server.js';
+import {type DocSection} from '../schemas/doc-types.js';
+import {state} from '../server/server.js';
 
 export function findSection(name: string): DocSection | undefined {
     const pascalCase = name
@@ -13,9 +13,7 @@ export function findSection(name: string): DocSection | undefined {
         ? pascalCase.charAt(0).toLowerCase() + pascalCase.slice(1)
         : '';
 
-    const tuiVariant = pascalCase.startsWith('Tui')
-        ? pascalCase
-        : 'Tui' + pascalCase;
+    const tuiVariant = pascalCase.startsWith('Tui') ? pascalCase : `Tui${pascalCase}`;
 
     const variants = [
         name.toLowerCase(),
@@ -28,37 +26,45 @@ export function findSection(name: string): DocSection | undefined {
     // Exact match
     for (const variant of variants) {
         const exactMatch = state.sections.find(
-            (section) => section.id.toLowerCase() === variant.toLowerCase()
+            (section) => section.id.toLowerCase() === variant.toLowerCase(),
         );
 
-        if (exactMatch) return exactMatch;
+        if (exactMatch) {
+            return exactMatch;
+        }
     }
 
     // Last path segment match
     for (const variant of variants) {
         const segmentMatch = state.sections.find(
             (section) =>
-                section.id.split('/').pop()?.toLowerCase() ===
-                variant.toLowerCase()
+                section.id.split('/').pop()?.toLowerCase() === variant.toLowerCase(),
         );
 
-        if (segmentMatch) return segmentMatch;
+        if (segmentMatch) {
+            return segmentMatch;
+        }
     }
 
     // Ends-with match
     for (const variant of variants) {
         const endsWithMatch = state.sections.find((section) =>
-            section.id.toLowerCase().endsWith('/' + variant.toLowerCase())
+            section.id.toLowerCase().endsWith(`/${variant.toLowerCase()}`),
         );
-        if (endsWithMatch) return endsWithMatch;
+
+        if (endsWithMatch) {
+            return endsWithMatch;
+        }
     }
 
     // Substring fallback
     const substringMatch = state.sections.find((section) =>
-        section.id.toLowerCase().includes(name.toLowerCase())
+        section.id.toLowerCase().includes(name.toLowerCase()),
     );
 
-    if (substringMatch) return substringMatch;
+    if (substringMatch) {
+        return substringMatch;
+    }
 
     return undefined;
 }
@@ -70,21 +76,17 @@ export function suggestSections(query: string): string[] {
         .map((section) => {
             const sectionIdLower = section.id.toLowerCase();
             const matchIndex = sectionIdLower.indexOf(normalizedQuery);
+
             return matchIndex === -1
                 ? null
                 : {
                       id: section.id,
                       score:
                           matchIndex * 10 +
-                          Math.abs(
-                              sectionIdLower.length - normalizedQuery.length
-                          ),
+                          Math.abs(sectionIdLower.length - normalizedQuery.length),
                   };
         })
-        .filter(
-            (candidate): candidate is { id: string; score: number } =>
-                !!candidate
-        )
+        .filter((candidate): candidate is {id: string; score: number} => !!candidate)
         .sort((a, b) => a.score - b.score)
         .map((result) => result.id);
 }

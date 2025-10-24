@@ -1,33 +1,46 @@
-import { DocSection } from '../schemas/doc-types.js';
-import { state } from '../server/server.js';
+import {type DocSection} from '../schemas/doc-types.js';
+import {state} from '../server/server.js';
 
-function extractMeta(text: string): { package?: string; kind?: string } {
+function extractMeta(text: string): {package?: string; kind?: string} {
     let pkg: string | undefined;
     let kind: string | undefined;
 
     const pkgMatch = /\*\*Package\*\*:\s*`([^`]+)`/i.exec(text);
-    if (pkgMatch) pkg = pkgMatch[1];
+
+    if (pkgMatch?.[1]) {
+        pkg = pkgMatch[1];
+    }
 
     const typeMatch = /\*\*Type\*\*:\s*([^\n]+)/i.exec(text);
-    if (typeMatch) kind = typeMatch[1].trim();
 
-    return { package: pkg, kind };
+    if (typeMatch?.[1]) {
+        kind = typeMatch[1].trim();
+    }
+
+    return {package: pkg, kind};
 }
 
 export function parseContent(rawContent: string, sourceUrl: string): void {
     state.sourceUrl = sourceUrl;
 
     const lines = rawContent.split(/\r?\n/);
-    const headerIndices: { line: number; title: string }[] = [];
+    const headerIndices: Array<{line: number; title: string}> = [];
 
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-        const headerMatch = /^#\s+(.+)$/.exec(lines[lineIndex]);
+        const line = lines[lineIndex];
 
-        if (headerMatch)
+        if (line === undefined) {
+            continue;
+        }
+
+        const headerMatch = /^#\s+(.+)$/.exec(line);
+
+        if (headerMatch?.[1]) {
             headerIndices.push({
                 line: lineIndex,
                 title: headerMatch[1].trim(),
             });
+        }
     }
 
     state.sections = headerIndices.map((header, headerIndex): DocSection => {

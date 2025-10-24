@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { ensureSourceLoaded } from './fetch.js';
-import { registerAllTools } from '../tools/index.js';
-import { DocSection } from '../schemas/doc-types.js';
+import {McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
+import {StdioServerTransport} from '@modelcontextprotocol/sdk/server/stdio.js';
+
+import {type DocSection} from '../schemas/doc-types.js';
+import {registerAllTools} from '../tools/index.js';
+import {ensureSourceLoaded} from './fetch.js';
 
 export interface IndexState {
     sections: DocSection[];
@@ -24,7 +25,7 @@ const server = new McpServer({
 
 registerAllTools(server);
 
-export async function start() {
+export async function start(): Promise<void> {
     try {
         await ensureSourceLoaded();
     } catch (error) {
@@ -32,9 +33,10 @@ export async function start() {
     }
 
     const transport = new StdioServerTransport();
+
     await server.connect(transport);
 
     console.error(
-        `Angular Taiga UI MCP Server running. Fetched source components: ${state.sections.length}`
+        `Angular Taiga UI MCP Server running. Fetched source components: ${state.sections.length}`,
     );
 }
