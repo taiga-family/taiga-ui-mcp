@@ -1,4 +1,4 @@
-import type {DocSection, QueryResult} from '../schemas/doc-types.js';
+import {type DocSection, type QueryResult} from '../schemas/doc-types.js';
 import {findSection, suggestSections} from './find-section.js';
 
 export function extractContentSnippets(section: DocSection): string[] {

@@ -1,4 +1,4 @@
-import type {DocSection} from '../schemas/doc-types.js';
+import {type DocSection} from '../schemas/doc-types.js';
 import {state} from '../server/server.js';
 
 export function findSection(name: string): DocSection | undefined {

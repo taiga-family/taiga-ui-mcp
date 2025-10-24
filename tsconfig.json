@@ -4,11 +4,7 @@
         "baseUrl": "./",
         "outDir": "./dist",
         "rootDir": "./src",
-        "strict": true,
         "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "sourceMap": true,
         "checkJs": false,
         "types": ["node"],
         "typeRoots": ["node_modules/@types", "node_modules/@taiga-ui/tsconfig"],
@@ -16,6 +12,6 @@
         "moduleResolution": "NodeNext",
         "target": "ES2022"
     },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules"]
+    "include": ["**/*.ts", "**/*.js"],
+    "exclude": ["node_modules", "eslint.config.ts"]
 }

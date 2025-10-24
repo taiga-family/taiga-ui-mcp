@@ -12,7 +12,7 @@ export function constructComponentsList(query = ''): {
     items: ListedComponent[];
     normalizedQuery: string | null;
 } {
-    const normalizedQuery = query?.toLowerCase().replace(/^tui/, '');
+    const normalizedQuery = query.toLowerCase().replace(/^tui/, '');
 
     const items: ListedComponent[] = state.sections
         .filter(

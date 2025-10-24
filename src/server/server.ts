@@ -2,7 +2,7 @@
 import {McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
 import {StdioServerTransport} from '@modelcontextprotocol/sdk/server/stdio.js';
 
-import type {DocSection} from '../schemas/doc-types.js';
+import {type DocSection} from '../schemas/doc-types.js';
 import {registerAllTools} from '../tools/index.js';
 import {ensureSourceLoaded} from './fetch.js';
 
