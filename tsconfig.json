@@ -12,6 +12,6 @@
         "moduleResolution": "NodeNext",
         "target": "ES2022"
     },
-    "include": ["**/*.ts", "**/*.js"],
-    "exclude": ["node_modules", "eslint.config.ts"]
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"]
 }
