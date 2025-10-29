@@ -5,6 +5,7 @@ import {StdioServerTransport} from '@modelcontextprotocol/sdk/server/stdio.js';
 import packageJson from '../../package.json' with {type: 'json'};
 import {type DocSection} from '../schemas/doc-types.js';
 import {registerAllTools} from '../tools/index.js';
+import {logError, logInfo} from '../utils/logger.js';
 import {ensureSourceLoaded} from './fetch.js';
 
 export interface IndexState {
@@ -30,14 +31,14 @@ export async function start(): Promise<void> {
     try {
         await ensureSourceLoaded();
     } catch (error) {
-        console.error('Initial source load failed:', error);
+        logError('Initial source load failed', error);
     }
 
     const transport = new StdioServerTransport();
 
     await server.connect(transport);
 
-    console.warn(
+    logInfo(
         `Angular Taiga UI MCP Server running. Fetched source components: ${state.sections.length}`,
     );
 }
