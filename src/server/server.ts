@@ -36,7 +36,7 @@ export async function start(): Promise<void> {
 
     await server.connect(transport);
 
-    console.error(
+    console.warn(
         `Angular Taiga UI MCP Server running. Fetched source components: ${state.sections.length}`,
     );
 }
