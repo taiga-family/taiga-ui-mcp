@@ -2,6 +2,7 @@
 import {McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
 import {StdioServerTransport} from '@modelcontextprotocol/sdk/server/stdio.js';
 
+import packageJson from '../../package.json' with {type: 'json'};
 import {type DocSection} from '../schemas/doc-types.js';
 import {registerAllTools} from '../tools/index.js';
 import {ensureSourceLoaded} from './fetch.js';
@@ -20,7 +21,7 @@ export const state: IndexState = {
 
 const server = new McpServer({
     name: 'taiga-ui-mcp',
-    version: '0.1.0-alpha.1',
+    version: packageJson.version,
 });
 
 registerAllTools(server);
