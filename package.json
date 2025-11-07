@@ -31,18 +31,18 @@
         "dist/"
     ],
     "scripts": {
-    "build": "npm run clean && tsc --incremental false && chmod 755 dist/index.js",
-    "clean": "rm -rf dist",
-    "cspell": "cspell --relative --dot --gitignore .",
-    "lint": "eslint .",
-    "prepare": "husky",
-    "prepublishOnly": "npm run build",
-    "prettier": "prettier !package-lock.json . --ignore-path .gitignore",
-    "release": "npm publish --access public --tag latest",
-    "postrelease": "npm dist-tag add @taiga-ui/mcp@$(node -p 'require(`./package.json`).version') alpha",
-    "start": "node dist/index.js",
-    "typecheck": "tsc --noEmit --incremental false"
-  },
+        "build": "npm run clean && tsc --incremental false && chmod 755 dist/index.js",
+        "clean": "rm -rf dist",
+        "cspell": "cspell --relative --dot --gitignore .",
+        "lint": "eslint .",
+        "prepare": "husky",
+        "prepublishOnly": "npm run build",
+        "prettier": "prettier !package-lock.json . --ignore-path .gitignore",
+        "release": "npm publish --access public --tag latest",
+        "postrelease": "npm dist-tag add @taiga-ui/mcp@$(node -p 'require(`./package.json`).version') alpha",
+        "start": "node dist/index.js",
+        "typecheck": "tsc --noEmit --incremental false"
+    },
     "commitlint": {
         "extends": [
             "@taiga-ui/commitlint-config"
