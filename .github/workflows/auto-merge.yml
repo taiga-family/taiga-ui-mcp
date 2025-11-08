@@ -1,0 +1,58 @@
+name: 🤖 PR auto merge
+on:
+  pull_request:
+
+env:
+  PR_JOBS_NAME: '[ "Build", "Lint result" ]'
+  RELEASE_JOBS_NAME: '[ "Release" ]'
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4.3.0
+      - uses: taiga-family/ci/actions/setup/variables@v1.169.0
+      - id: matrix
+        if: env.IS_TAIGA_FAMILY_BOT_PR_AUTHOR == 'true'
+        run: |
+          if [[ "${{ env.IS_RELEASE_BRANCH }}" == "false" ]]; then
+              echo "value=$PR_JOBS_NAME" >> $GITHUB_OUTPUT
+          else
+            echo "value=$RELEASE_JOBS_NAME" >> $GITHUB_OUTPUT
+          fi
+
+  wait:
+    needs: [setup]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        value: ${{ fromJSON(needs.setup.outputs.matrix || '[]') }}
+    steps:
+      - uses: taiga-family/ci/actions/run/wait-job@v1.169.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          job: ${{ matrix.value }}
+
+  approve:
+    needs: [wait]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.3.0
+      - uses: taiga-family/ci/actions/setup/variables@v1.169.0
+      - uses: taiga-family/ci/actions/auto/approve/double@v1.169.0
+        if: env.IS_TAIGA_FAMILY_BOT_PR_AUTHOR == 'true'
+        with:
+          token1: ${{ secrets.GITHUB_TOKEN }}
+          token2: ${{ secrets.TAIGA_FAMILY_APPROVE_BOT_PAT }}
+      - uses: taiga-family/ci/actions/run/merge@v1.169.0
+        if: env.IS_TAIGA_FAMILY_BOT_PR_AUTHOR == 'true'
+        with:
+          token: ${{ secrets.TAIGA_FAMILY_BOT_PAT }}
+          merge-method: ${{ (contains(github.head_ref, 'release/') && 'merge') || 'squash' }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
