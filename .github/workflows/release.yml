@@ -27,6 +27,16 @@ jobs:
           npmToken: ${{ secrets.TAIGA_UI_SCOPE_NPM_TOKEN }}
           githubToken: ${{ secrets.TAIGA_FAMILY_BOT_PAT }}
 
+      - name: Announce to Telegram
+        if: steps.release-it.outputs.released == 'true'
+        uses: taiga-family/ci/actions/messenger/telegram/announce@v1.169.0
+        with:
+          chatId: ${{ secrets.TAIGA_TELEGRAM_CHAT_ID }}
+          topicId: ${{ secrets.TAIGA_TELEGRAM_CHAT_THREAD_ID }}
+          token: ${{ secrets.TAIGA_TELEGRAM_BOT_TOKEN }}
+          version: v${{ steps.info.outputs.version }}
+          textLink: '@taiga-ui/mcp'
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
