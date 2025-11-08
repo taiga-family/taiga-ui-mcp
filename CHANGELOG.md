@@ -1,3 +1,10 @@
+### [0.1.0-alpha.9](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.8...v0.1.0-alpha.9) (2025-11-08)
+
+### 🐞 Bug Fixes
+
+- get_list_components empty string as default (#29)
+  [(85599ea)](https://github.com/taiga-family/taiga-ui-mcp/commit/85599ea11167ece354da4c0b3e72c6c870a26da4)
+
 ### [0.1.0-alpha.8](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.7...v0.1.0-alpha.8) (2025-10-30)
 
 ### [0.1.0-alpha.7](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.6...v0.1.0-alpha.7) (2025-10-29)
