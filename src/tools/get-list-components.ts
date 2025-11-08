@@ -11,7 +11,7 @@ export function registerGetListComponentsTool(server: McpServer): void {
             title: 'List Components',
             description:
                 'List all Taiga UI documentation section IDs (structured JSON only).',
-            inputSchema: {query: z.string().optional()},
+            inputSchema: {query: z.string().optional().default('')},
             outputSchema: {
                 items: z.array(
                     z.object({
