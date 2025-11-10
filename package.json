@@ -63,7 +63,7 @@
         "zod": "3.25.76"
     },
     "devDependencies": {
-        "@taiga-ui/configs": "0.355.0",
+        "@taiga-ui/configs": "0.356.0",
         "@types/node": "24.10.0",
         "husky": "9.1.7",
         "lint-staged": "15.5.2",
