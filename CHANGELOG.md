@@ -1,3 +1,7 @@
+## Changelog
+
+All notable changes to this project will be documented in this file.
+
 ### [0.1.0-alpha.9](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.8...v0.1.0-alpha.9) (2025-11-08)
 
 ### 🐞 Bug Fixes
@@ -14,10 +18,6 @@
 ### [0.1.0-alpha.5](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.4...v0.1.0-alpha.5) (2025-10-22)
 
 ### [0.1.0-alpha.4](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.3...v0.1.0-alpha.4) (2025-10-22)
-
-# Changelog
-
-All notable changes to this project will be documented in this file.
 
 ### [0.1.0-alpha.3](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.2...v0.1.0-alpha.3) (2025-10-22)
 
