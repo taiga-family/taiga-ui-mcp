@@ -77,7 +77,6 @@ get_list_components();
     },
     ...
   ],
-  "total": 200+,
 }
 ```
 
