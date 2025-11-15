@@ -22,17 +22,13 @@ export function registerGetListComponentsTool(server: McpServer): void {
                         type: z.string().nullable(),
                     }),
                 ),
-                total: z.number(),
             },
         },
         async ({query}: {query?: string}) => {
             await ensureSourceLoaded();
 
-            const items = constructComponentsList(query);
-
             const output = {
-                items,
-                total: items.length,
+                items: constructComponentsList(query),
             };
 
             return {
