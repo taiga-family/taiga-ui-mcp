@@ -29,17 +29,17 @@ First, install the Taiga UI MCP server with your client.
 
 **Standard config** works in most of the tools:
 
-```json5
+```json
 {
-  mcpServers: {
-    'taiga-ui': {
-      command: 'npx',
-      args: [
-        '@taiga-ui/mcp@latest',
-        '--source-url=https://taiga-ui.dev/llms-full.txt', // or file from "/next" version, if you want
-      ],
-    },
-  },
+  "mcpServers": {
+    "taiga-ui": {
+      "command": "npx",
+      "args": [
+        "@taiga-ui/mcp@latest",
+        "--source-url=https://taiga-ui.dev/llms-full.txt" // or file from /next version, if you want
+      ]
+    }
+  }
 }
 ```
 
@@ -52,13 +52,32 @@ First, install the Taiga UI MCP server with your client.
    - Lists component / section identifiers (with fuzzy substring filtering) along with basic metadata (category,
      package, type).
    - Input: optional `query` string to filter IDs (case-insensitive substring).
-   - Output: strictly structured JSON containing `items`, `total`, `query`.
+   - Output: strictly structured JSON containing `items`, `total`.
 
-```json5
+```ts
+get_list_components();
+```
+
+```json
 {
-  items: [{id: 'components/Alert', name: 'Alert', category: 'components', package: 'CORE', type: 'component'}],
-  total: 1,
-  query: null,
+  "items": [
+    {
+        "id": "components/Alert",
+        "name": "Alert",
+        "category": "components",
+        "package": "CORE",
+        "type": "component"
+    },
+    {
+      "id": "components/Button",
+      "package": "CORE",
+      "type": "component",
+      "name": "Button",
+      "category": "components"
+    },
+    ...
+  ],
+  "total": 200+,
 }
 ```
 
@@ -70,18 +89,22 @@ First, install the Taiga UI MCP server with your client.
      unresolved), `content` (array of code blocks, if examples exist). Top-level also includes `matched` (count of
      resolved names).
 
-```json5
+```ts
+get_component_example({names: ['Alert']});
+```
+
+```json
 {
-  results: [
+  "results": [
     {
-      query: 'Alert',
-      id: 'components/Alert',
-      package: 'CORE',
-      type: 'component',
-      content: ['# components/Alert\n- **Package**: ... (full section markdown here)'],
-    },
+      "query": "Alert",
+      "id": "components/Alert",
+      "package": "CORE",
+      "type": "component",
+      "content": ["# components/Alert\n- **Package**: ... (full component API, usage examples, ...)"]
+    }
   ],
-  matched: 1,
+  "matched": 1
 }
 ```
 
