@@ -1,3 +1,5 @@
+### [0.1.0-alpha.10](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.9...v0.1.0-alpha.10) (2025-11-17)
+
 ## Changelog
 
 All notable changes to this project will be documented in this file.
