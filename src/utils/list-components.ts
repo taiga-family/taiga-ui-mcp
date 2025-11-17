@@ -8,13 +8,10 @@ export interface ListedComponent {
     type: string | null;
 }
 
-export function constructComponentsList(query = ''): {
-    items: ListedComponent[];
-    normalizedQuery: string | null;
-} {
+export function constructComponentsList(query = ''): ListedComponent[] {
     const normalizedQuery = query.toLowerCase().replace(/^tui/, '');
 
-    const items: ListedComponent[] = state.sections
+    return state.sections
         .filter(
             (section) =>
                 !normalizedQuery || section.id.toLowerCase().includes(normalizedQuery),
@@ -32,6 +29,4 @@ export function constructComponentsList(query = ''): {
                 type: section.kind ?? null,
             };
         });
-
-    return {items, normalizedQuery};
 }
