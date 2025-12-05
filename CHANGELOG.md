@@ -1,3 +1,5 @@
+### [0.1.0-alpha.12](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.11...v0.1.0-alpha.12) (2025-12-05)
+
 ### [0.1.0-alpha.11](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.10...v0.1.0-alpha.11) (2025-11-26)
 
 ### [0.1.0-alpha.10](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.9...v0.1.0-alpha.10) (2025-11-17)
