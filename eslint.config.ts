@@ -19,5 +19,11 @@ export default [
             'import/extensions': 'off',
             'import/no-useless-path-segments': ['error', {noUselessIndex: false}],
         },
+        languageOptions: {
+            parserOptions: {
+                tsconfigRootDir: __dirname,
+                project: ['./tsconfig.eslint.json'],
+            },
+        },
     },
 ];
