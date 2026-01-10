@@ -64,7 +64,7 @@
     },
     "devDependencies": {
         "@taiga-ui/configs": "0.379.0",
-        "@types/node": "24.10.4",
+        "@types/node": "24.10.6",
         "husky": "9.1.7",
         "lint-staged": "15.5.2",
         "typescript": "5.9.3"
