@@ -36,7 +36,7 @@ export function registerGetOverviewTool(server: McpServer): void {
             title: 'Get Documentation Overview',
             description:
                 'Retrieve the fully structured documentation header as JSON. Returns hierarchical sections with parsed content (no raw markdown). Each section contains: title, description, critical notices, and subsections with their content and code blocks.',
-            inputSchema: {},
+            inputSchema: z.object({}).strict(),
             outputSchema: {
                 documentTitle: z.string(),
                 globalCritical: z.array(z.string()),
