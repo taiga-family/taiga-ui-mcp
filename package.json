@@ -31,11 +31,11 @@
         "dist/"
     ],
     "scripts": {
-        "clean": "rm -rf dist",
-        "prepare": "husky",
         "build": "npm run clean && tsc --incremental false && chmod 755 dist/index.js",
-        "lint": "eslint .",
+        "clean": "rm -rf dist",
         "cspell": "cspell --relative --dot --gitignore .",
+        "lint": "eslint .",
+        "prepare": "husky",
         "prepublishOnly": "npm run build",
         "prettier": "prettier !package-lock.json . --ignore-path .gitignore",
         "release": "npm publish --access public --tag latest",
