@@ -31,11 +31,11 @@
         "dist/"
     ],
     "scripts": {
-        "clean": "rm -rf dist",
-        "prepare": "husky",
         "build": "npm run clean && tsc --incremental false && chmod 755 dist/index.js",
-        "lint": "eslint .",
+        "clean": "rm -rf dist",
         "cspell": "cspell --relative --dot --gitignore .",
+        "lint": "eslint .",
+        "prepare": "husky",
         "prepublishOnly": "npm run build",
         "prettier": "prettier !package-lock.json . --ignore-path .gitignore",
         "release": "npm publish --access public --tag latest",
@@ -66,7 +66,6 @@
         "@taiga-ui/configs": "0.400.0",
         "@types/node": "24.10.9",
         "husky": "9.1.7",
-        "lint-staged": "15.5.2",
         "typescript": "5.9.3"
     },
     "engines": {

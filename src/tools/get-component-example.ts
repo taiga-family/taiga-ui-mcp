@@ -28,9 +28,7 @@ export function registerGetComponentExampleTool(server: McpServer): void {
         },
         async ({names}: {names: string[]}) => {
             if (!names.length) {
-                const output = {
-                    error: 'Provide at least one name in names array.',
-                };
+                const output = {error: 'Provide at least one name in names array.'};
 
                 return {
                     content: [{type: 'text', text: JSON.stringify(output, null, 2)}],
