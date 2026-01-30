@@ -97,9 +97,7 @@ export function registerGetOverviewTool(server: McpServer): void {
             const output: OverviewOutput = {
                 title: headerInfo.title,
                 sections: headerInfo.sections.map((section: HeaderSection) => {
-                    const sectionData: any = {
-                        title: section.title,
-                    };
+                    const sectionData: any = {title: section.title};
 
                     if (section.description) {
                         sectionData.description = section.description;

@@ -128,7 +128,7 @@ function extractPlainContent(content: string): string[] {
         }
 
         // Skip horizontal rules
-        if (/^---+\s*$/.test(line)) {
+        if (/^-{3,}\s*$/.test(line)) {
             continue;
         }
 
