@@ -27,7 +27,7 @@ export function parseContent(rawContent: string, sourceUrl: string): void {
     // Extract and store header separately
     const headerContent = extractHeaderContent(rawContent);
 
-    state.headerContent = headerContent;
+    state.overview = headerContent;
 
     const lines = rawContent.split(/\r?\n/);
     const componentsStartLine = findComponentsSectionStart(rawContent);

@@ -10,14 +10,14 @@ import {ensureSourceLoaded} from './fetch.js';
 
 export interface IndexState {
     sections: DocSection[];
-    headerContent?: string;
+    overview?: string;
     sourceUrl?: string;
     lastLoadedAt?: number;
 }
 
 export const state: IndexState = {
     sections: [],
-    headerContent: undefined,
+    overview: undefined,
     sourceUrl: undefined,
     lastLoadedAt: undefined,
 };
