@@ -41,7 +41,7 @@ export function parseContent(rawContent: string, sourceUrl: string): void {
         if (line === undefined) {
             continue;
         }
-      
+
         // Match level-1 headings for components (# ...)
         const headerMatch = /^#\s+(.+)$/.exec(line);
 
