@@ -27,9 +27,7 @@ export function registerGetListComponentsTool(server: McpServer): void {
         async ({query}: {query?: string}) => {
             await ensureSourceLoaded();
 
-            const output = {
-                items: constructComponentsList(query),
-            };
+            const output = {items: constructComponentsList(query)};
 
             return {
                 content: [
