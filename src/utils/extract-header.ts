@@ -176,7 +176,7 @@ function parseSection(content: string): HeaderSection {
         }
 
         // Extract title from first heading
-        const h1Match = /^#\s+([^#].+)$/.exec(line);
+        const h1Match = /^#\s+([^#]\S.*)$/.exec(line);
 
         if (h1Match?.[1] && !title) {
             title = h1Match[1].trim();
@@ -185,7 +185,7 @@ function parseSection(content: string): HeaderSection {
         }
 
         // Extract subsections (##, ###, etc)
-        const hMatch = /^(#{2,6})\s+(.+)$/.exec(line);
+        const hMatch = /^(#{2,6})\s+(\S.*)$/.exec(line);
 
         if (hMatch?.[1] && hMatch[2]) {
             const level = hMatch[1].length;
@@ -408,7 +408,7 @@ export function parseHeaderSections(headerContent: string): ParsedHeader {
         }
 
         // Level-1 heading
-        const h1Match = /^#\s+([^#].+)$/.exec(line);
+        const h1Match = /^#\s+([^#]\S.*)$/.exec(line);
 
         if (h1Match?.[1]) {
             sectionIndices.push({
