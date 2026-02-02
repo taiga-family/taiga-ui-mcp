@@ -28,9 +28,7 @@ const server = new McpServer(
         version: packageJson.version,
     },
     {
-        capabilities: {
-            tools: {},
-        },
+        capabilities: {tools: {}},
         instructions: `
 <General Purpose>
 This server provides programmatic access to Taiga UI component documentation for AI assistants.
