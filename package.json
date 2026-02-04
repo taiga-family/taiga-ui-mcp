@@ -63,8 +63,8 @@
         "zod": "3.25.76"
     },
     "devDependencies": {
-        "@taiga-ui/configs": "0.402.0",
-        "@types/node": "24.10.9",
+        "@taiga-ui/configs": "0.404.0",
+        "@types/node": "24.10.10",
         "husky": "9.1.7",
         "typescript": "5.9.3"
     },
