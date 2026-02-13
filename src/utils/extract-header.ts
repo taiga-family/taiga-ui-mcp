@@ -223,6 +223,53 @@ function parseSection(content: string): HeaderSection {
     // Parse subsections - group bold headings under level-3, level-3 under level-2
     let currentSubsection: Subsection | null = null;
     let currentItem: NestedItem | null = null;
+    let currentGroup: NestedItem | null = null;
+
+    const pushCurrentItem = (): void => {
+        if (!currentItem || !currentSubsection) {
+            return;
+        }
+
+        if (
+            currentItem.content.length > 0 ||
+            currentItem.code ||
+            (currentItem.sections && currentItem.sections.length > 0)
+        ) {
+            currentSubsection.items = currentSubsection.items || [];
+            currentSubsection.items.push(currentItem);
+        }
+
+        currentItem = null;
+    };
+
+    const pushCurrentGroup = (): void => {
+        if (!currentGroup || !currentSubsection) {
+            return;
+        }
+
+        if (
+            currentGroup.content.length > 0 ||
+            (currentGroup.sections && currentGroup.sections.length > 0)
+        ) {
+            currentSubsection.items = currentSubsection.items || [];
+            currentSubsection.items.push(currentGroup);
+        }
+
+        currentGroup = null;
+    };
+
+    const addSectionToItem = (
+        item: NestedItem,
+        sectionItem: SubsectionItem,
+        plainContent: string[],
+    ): void => {
+        item.sections = item.sections || [];
+        item.sections.push(sectionItem);
+
+        if (plainContent.length > 0) {
+            item.content.push(...plainContent);
+        }
+    };
 
     for (let i = 1; i < headings.length; i++) {
         const current = headings[i];
@@ -238,17 +285,8 @@ function parseSection(content: string): HeaderSection {
         // Level 2 heading (##) - create new subsection
         if (current.level === 2 && !current.title.endsWith(':')) {
             // Save previous subsection and item (only if they have content)
-            if (currentItem && currentSubsection) {
-                if (
-                    currentItem.content.length > 0 ||
-                    (currentItem.sections && currentItem.sections.length > 0)
-                ) {
-                    currentSubsection.items = currentSubsection.items || [];
-                    currentSubsection.items.push(currentItem);
-                }
-
-                currentItem = null;
-            }
+            pushCurrentItem();
+            pushCurrentGroup();
 
             if (currentSubsection) {
                 // Only push if has content
@@ -271,21 +309,28 @@ function parseSection(content: string): HeaderSection {
         }
         // Level 3 heading (###) - create new nested item
         else if (current.level === 3 && !current.title.endsWith(':')) {
-            // Save previous item (only if it has content or sections)
-            if (currentItem && currentSubsection) {
-                if (
-                    currentItem.content.length > 0 ||
-                    currentItem.code ||
-                    (currentItem.sections && currentItem.sections.length > 0)
-                ) {
-                    currentSubsection.items = currentSubsection.items || [];
-                    currentSubsection.items.push(currentItem);
-                }
-            }
-
             const plainContent = extractPlainContent(subsectionContent);
             const codeBlocks = extractCodeBlocks(subsectionContent);
             const code = codeBlocks.length > 0 ? codeBlocks[0]?.code : undefined;
+
+            if (currentGroup && currentSubsection) {
+                const sectionItem: SubsectionItem = {
+                    section: current.title,
+                    code,
+                };
+
+                currentGroup.sections = currentGroup.sections || [];
+                currentGroup.sections.push(sectionItem);
+
+                if (plainContent.length > 0) {
+                    currentGroup.content.push(...plainContent);
+                }
+
+                continue;
+            }
+
+            // Save previous item (only if it has content or sections)
+            pushCurrentItem();
 
             currentItem = {
                 title: current.title,
@@ -299,29 +344,36 @@ function parseSection(content: string): HeaderSection {
             const codeBlocks = extractCodeBlocks(subsectionContent);
             const code = codeBlocks.length > 0 ? codeBlocks[0]?.code : undefined;
             const plainContent = extractPlainContent(subsectionContent);
+            const nextHeading = headings[i + 1];
 
-            const sectionItem: SubsectionItem = {
-                section: current.title,
-                code,
-            };
+            if (currentSubsection && !currentItem && nextHeading?.level === 3) {
+                pushCurrentGroup();
 
-            // Add to current nested item (level 3)
-            if (currentItem) {
-                currentItem.sections = currentItem.sections || [];
-                currentItem.sections.push(sectionItem);
+                currentGroup = {
+                    title: current.title.replace(/:\s*$/, ''),
+                    content: plainContent,
+                    ...(code ? {code} : {}),
+                    sections: [],
+                };
+                currentItem = null;
+            } else {
+                const sectionItem: SubsectionItem = {
+                    section: current.title,
+                    code,
+                };
 
-                // Add content if exists
-                if (plainContent.length > 0) {
-                    currentItem.content.push(...plainContent);
+                if (currentItem) {
+                    addSectionToItem(currentItem, sectionItem, plainContent);
+                    continue;
                 }
-            }
-            // Add to current subsection (level 2)
-            else if (currentSubsection) {
-                currentSubsection.sections = currentSubsection.sections || [];
-                currentSubsection.sections.push(sectionItem);
-            }
-            // Standalone bold heading
-            else {
+
+                if (currentSubsection) {
+                    currentSubsection.sections = currentSubsection.sections || [];
+                    currentSubsection.sections.push(sectionItem);
+                    continue;
+                }
+
+                // Standalone bold heading
                 subsections.push({
                     title: current.title,
                     content: plainContent,
@@ -331,11 +383,8 @@ function parseSection(content: string): HeaderSection {
         }
         // Other headings - handle as needed
         else {
-            if (currentItem && currentSubsection) {
-                currentSubsection.items = currentSubsection.items || [];
-                currentSubsection.items.push(currentItem);
-                currentItem = null;
-            }
+            pushCurrentItem();
+            pushCurrentGroup();
 
             if (currentSubsection) {
                 subsections.push(currentSubsection);
@@ -356,17 +405,9 @@ function parseSection(content: string): HeaderSection {
         }
     }
 
-    // Push last item and subsection (only if they have content)
-    if (currentItem && currentSubsection) {
-        if (
-            currentItem.content.length > 0 ||
-            currentItem.code ||
-            (currentItem.sections && currentItem.sections.length > 0)
-        ) {
-            currentSubsection.items = currentSubsection.items || [];
-            currentSubsection.items.push(currentItem);
-        }
-    }
+    // Push last item/group and subsection (only if they have content)
+    pushCurrentItem();
+    pushCurrentGroup();
 
     if (currentSubsection) {
         // Only push subsection if it has content, sections, or items
