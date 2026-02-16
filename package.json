@@ -59,12 +59,12 @@
     ],
     "prettier": "@taiga-ui/prettier-config",
     "dependencies": {
-        "@modelcontextprotocol/sdk": "1.25.3",
+        "@modelcontextprotocol/sdk": "1.26.0",
         "zod": "3.25.76"
     },
     "devDependencies": {
-        "@taiga-ui/configs": "0.404.0",
-        "@types/node": "24.10.10",
+        "@taiga-ui/configs": "0.406.0",
+        "@types/node": "24.10.11",
         "husky": "9.1.7",
         "typescript": "5.9.3"
     },
