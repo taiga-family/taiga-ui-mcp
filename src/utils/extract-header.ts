@@ -420,6 +420,22 @@ function parseSection(content: string): HeaderSection {
         }
     }
 
+    // Special handling for .md files: if no subsections were created but there's code content
+    // (typical for installation guide files), create a subsection with the code
+    if (subsections.length === 0 && headings.length === 1 && headings[0]) {
+        // Get content after the title heading
+        const contentAfterTitle = lines.slice(headings[0].line + 1).join('\n');
+        const codeBlocks = extractCodeBlocks(contentAfterTitle);
+
+        if (codeBlocks.length > 0 && codeBlocks[0]) {
+            // Create a subsection with code directly in content
+            subsections.push({
+                title: '', // Empty title for direct code under h1
+                content: [codeBlocks[0].code], // Put code as single string in content
+            });
+        }
+    }
+
     const descriptionText = description.join('\n');
 
     return {
@@ -476,8 +492,50 @@ export function parseHeaderSections(headerContent: string): ParsedHeader {
         sections.push(parsedSection);
     }
 
+    // Post-process: group .md sections into "Getting Started"
+    const gettingStartedSections: HeaderSection[] = [];
+    const regularSections: HeaderSection[] = [];
+
+    for (const section of sections) {
+        if (section.title.endsWith('.md')) {
+            gettingStartedSections.push(section);
+        } else {
+            regularSections.push(section);
+        }
+    }
+
+    // Create "Getting Started" parent section if we have .md sections
+    if (gettingStartedSections.length > 0) {
+        const gettingStartedSection: HeaderSection = {
+            title: 'Getting Started',
+            description: 'Installation and setup guides',
+            criticalNotices: [],
+            subsections: gettingStartedSections.map((mdSection) => {
+                // Convert HeaderSection to Subsection
+                const subsection: Subsection = {
+                    title: mdSection.title.replace('.md', ''), // Remove .md extension
+                    content: [],
+                };
+
+                // .md sections already have code in content[0]
+                // Just copy it directly
+                if (mdSection.subsections.length > 0) {
+                    const firstSub = mdSection.subsections[0];
+
+                    if (firstSub?.content && firstSub.content.length > 0) {
+                        subsection.content = [...firstSub.content];
+                    }
+                }
+
+                return subsection;
+            }),
+        };
+
+        regularSections.push(gettingStartedSection);
+    }
+
     return {
         title,
-        sections,
+        sections: regularSections,
     };
 }
