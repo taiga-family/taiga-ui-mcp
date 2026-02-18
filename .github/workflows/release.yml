@@ -28,6 +28,11 @@ jobs:
           npmToken: ${{ secrets.TAIGA_UI_SCOPE_NPM_TOKEN }}
           githubToken: ${{ secrets.TAIGA_FAMILY_BOT_PAT }}
 
+      - uses: taiga-family/ci/actions/run/read-package-json@v1.187.0
+        id: info
+        with:
+          path: ./package.json
+
       - name: Announce to Telegram
         if: steps.release-it.outputs.released == 'true'
         uses: taiga-family/ci/actions/messenger/telegram/announce@v1.187.0
