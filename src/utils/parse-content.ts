@@ -1,6 +1,7 @@
 import {type DocSection} from '../schemas/doc-types.js';
 import {state} from '../server/server.js';
 import {extractHeaderContent, findComponentsSectionStart} from './extract-header.js';
+import {parseComponentSection} from './parse-component-section.js';
 
 function extractMeta(text: string): {package?: string; kind?: string} {
     let pkg: string | undefined;
@@ -65,6 +66,7 @@ export function parseContent(rawContent: string, sourceUrl: string): void {
             content,
             package: meta.package,
             kind: meta.kind,
+            parsedContent: parseComponentSection(content),
         };
     });
 }

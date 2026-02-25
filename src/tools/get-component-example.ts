@@ -20,7 +20,49 @@ export function registerGetComponentExampleTool(server: McpServer): void {
                         package: z.string().nullable().optional(),
                         type: z.string().nullable().optional(),
                         suggestions: z.array(z.string()).optional(),
-                        content: z.array(z.string()).optional(),
+                        content: z
+                            .object({
+                                description: z.string().nullable(),
+                                mainExample: z
+                                    .object({
+                                        language: z.string(),
+                                        code: z.string(),
+                                    })
+                                    .nullable(),
+                                api: z
+                                    .object({
+                                        inputs: z
+                                            .array(
+                                                z.object({
+                                                    property: z.string(),
+                                                    type: z.string(),
+                                                    description: z.string(),
+                                                }),
+                                            )
+                                            .optional(),
+                                        outputs: z
+                                            .array(
+                                                z.object({
+                                                    property: z.string(),
+                                                    type: z.string(),
+                                                    description: z.string(),
+                                                }),
+                                            )
+                                            .optional(),
+                                    })
+                                    .nullable(),
+                                less: z.string().optional(),
+                                pageTypescript: z.string().optional(),
+                                examples: z.array(
+                                    z.object({
+                                        title: z.string(),
+                                        template: z.string().optional(),
+                                        typescript: z.string().optional(),
+                                        styles: z.string().optional(),
+                                    }),
+                                ),
+                            })
+                            .optional(),
                     }),
                 ),
                 matched: z.number(),

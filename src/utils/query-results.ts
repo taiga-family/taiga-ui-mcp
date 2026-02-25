@@ -1,21 +1,22 @@
-import {type DocSection, type QueryResult} from '../schemas/doc-types.js';
+import {type ComponentContent, type QueryResult} from '../schemas/doc-types.js';
 import {findSection, suggestSections} from './find-section.js';
+import {parseComponentSection} from './parse-component-section.js';
 
-export function extractContentSnippets(section: DocSection): string[] {
-    const text = section.content || '';
-    const trimmed = text.trim();
-
-    if (!trimmed) {
-        return [];
+export function extractStructuredContent(
+    rawContent: string,
+    precomputed?: ComponentContent,
+): ComponentContent | undefined {
+    if (precomputed) {
+        return precomputed;
     }
 
-    const cleaned = trimmed
-        .split(/\r?\n/)
-        .map((line) => line.replace(/^#{1,6}\s*/, ''))
-        .join('\n')
-        .trim();
+    const trimmed = rawContent.trim();
 
-    return cleaned ? [cleaned] : [];
+    if (!trimmed) {
+        return undefined;
+    }
+
+    return parseComponentSection(trimmed);
 }
 
 export function buildQueryResults(names: string[]): {
@@ -38,7 +39,10 @@ export function buildQueryResults(names: string[]): {
             continue;
         }
 
-        const snippets = extractContentSnippets(section);
+        const structured = extractStructuredContent(
+            section.content,
+            section.parsedContent,
+        );
 
         const foundResult: QueryResult = {
             query: queryName,
@@ -47,8 +51,8 @@ export function buildQueryResults(names: string[]): {
             type: section.kind ?? null,
         };
 
-        if (snippets.length) {
-            foundResult.content = snippets;
+        if (structured) {
+            foundResult.content = structured;
         }
 
         results.push(foundResult);
