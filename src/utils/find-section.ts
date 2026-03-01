@@ -2,7 +2,31 @@ import {type DocSection} from '../schemas/doc-types.js';
 import {state} from '../server/server.js';
 
 export function findSection(name: string): DocSection | undefined {
-    const pascalCase = name
+    // Strip Tui/tui prefix: "TuiButton" → "Button", "tui-button" → "button"
+    const stripped = name.replace(/^[Tt]ui[-_]?/, '');
+
+    // Split camelCase/PascalCase into kebab: "IconButton" → "icon-button"
+    const kebab = stripped.replaceAll(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+
+    // Last word of kebab: "icon-button" → "button" (useful for compound names like TuiIconButton)
+    // Exclude generic Angular suffixes that match too broadly
+    const GENERIC_SUFFIXES = new Set([
+        'component',
+        'context',
+        'directive',
+        'guard',
+        'interceptor',
+        'module',
+        'options',
+        'pipe',
+        'service',
+    ]);
+    const kebabParts = kebab.split('-').filter(Boolean);
+    const lastWordCandidate =
+        kebabParts.length > 1 ? (kebabParts[kebabParts.length - 1] ?? '') : '';
+    const lastWord = GENERIC_SUFFIXES.has(lastWordCandidate) ? '' : lastWordCandidate;
+
+    const pascalCase = (stripped || name)
         .toLowerCase()
         .split(/[-_\s]+/)
         .filter(Boolean)
@@ -17,6 +41,9 @@ export function findSection(name: string): DocSection | undefined {
 
     const variants = [
         name.toLowerCase(),
+        stripped.toLowerCase(),
+        kebab,
+        lastWord,
         pascalCase,
         camelCase,
         tuiVariant,
@@ -57,20 +84,40 @@ export function findSection(name: string): DocSection | undefined {
         }
     }
 
-    // Substring fallback
-    const substringMatch = state.sections.find((section) =>
-        section.id.toLowerCase().includes(name.toLowerCase()),
-    );
+    // Substring fallback — check all variants including stripped/kebab
+    for (const variant of variants) {
+        const substringMatch = state.sections.find((section) =>
+            section.id.toLowerCase().includes(variant.toLowerCase()),
+        );
 
-    if (substringMatch) {
-        return substringMatch;
+        if (substringMatch) {
+            return substringMatch;
+        }
     }
 
     return undefined;
 }
 
 export function suggestSections(query: string): string[] {
-    const normalizedQuery = query.toLowerCase();
+    // Strip Tui prefix and convert to kebab for better matching
+    const GENERIC_SUFFIXES = new Set([
+        'component',
+        'context',
+        'directive',
+        'guard',
+        'interceptor',
+        'module',
+        'options',
+        'pipe',
+        'service',
+    ]);
+    const stripped = query.replace(/^[Tt]ui[-_]?/, '');
+    const kebab = stripped.replaceAll(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+    const parts = kebab
+        .split('-')
+        .filter((p) => !GENERIC_SUFFIXES.has(p) && p.length > 1);
+    // Try full kebab first, then without generic suffixes
+    const normalizedQuery = (parts.join('-') || kebab || stripped || query).toLowerCase();
 
     return state.sections
         .map((section) => {
