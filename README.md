@@ -15,7 +15,8 @@ development workflow.
 ### Key Features
 
 - **Docs + code snippets**. Full Taiga UI markdown plus ready Angular examples in one place.
-- **Two MCP tools**. Discover with `get_list_components`, fetch examples via `get_component_example`.
+- **Three MCP tools**. Get structured overview with `get_overview`, discover with `get_list_components`, fetch examples
+  via `get_component_example`.
 - **Configurable & lightweight**. Swap source URL (stable/next) without local Angular install.
 
 ### Requirements
@@ -48,7 +49,45 @@ First, install the Taiga UI MCP server with your client.
 <details>
 <summary><b>Core automation</b></summary>
 
-1. `get_list_components { query?: string }`
+1. `get_overview`
+   - Returns structured documentation header: import map (all packages and their exports), code generation checklist,
+     CDK types reference, common mistakes, and getting started guides.
+   - **Always call this first** before using other tools — it provides critical context for correct code generation
+     (right packages, right types, common pitfalls).
+   - Output: JSON with `sections` array (Import Map, Code Generation Checklist, CDK Types Reference, Common Mistakes,
+     Getting Started) and `totalComponents` count.
+
+```ts
+get_overview();
+```
+
+```json
+{
+  "title": "Taiga UI - Complete Documentation",
+  "sections": [
+    {
+      "title": "Import Map - Package Exports Reference",
+      "criticalNotices": ["Always import from the correct package. This is the #1 cause of compilation errors."],
+      "subsections": [...]
+    },
+    { "title": "Code Generation Checklist", "subsections": [...] },
+    { "title": "CDK Types Reference", "subsections": [...] },
+    { "title": "Common Mistakes", "subsections": [...] },
+    {
+      "title": "Getting Started",
+      "description": "Installation and setup guides",
+      "subsections": [
+        { "title": "addons", "content": ["npm i @taiga-ui/addon-charts ..."] },
+        { "title": "app-standalone", "content": ["import {TuiRoot} from '@taiga-ui/core'; ..."] },
+        ...
+      ]
+    }
+  ],
+  "totalComponents": 185
+}
+```
+
+2. `get_list_components { query?: string }`
    - Lists component / section identifiers (with fuzzy substring filtering) along with basic metadata (category,
      package, type).
    - Input: optional `query` string to filter IDs (case-insensitive substring).
@@ -80,7 +119,7 @@ get_list_components();
 }
 ```
 
-2. `get_component_example { "names": ["...", "..."] }`
+3. `get_component_example { "names": ["...", "..."] }`
    - Returns full markdown content for each resolved section (entire component documentation).
    - Fuzzy name resolution: exact match, path segment, suffix, substring, and `Tui*` variants.
    - Input: `{ names: string[] }` (each name length ≥ 2).
@@ -107,8 +146,8 @@ get_component_example({names: ['Alert']});
 }
 ```
 
-> Tip: Combine `get_list_components` to discover IDs and then fetch full implementation snippets with
-> `get_component_example`.
+> Tip: Start with `get_overview` to get import map and common mistakes, then use `get_list_components` to discover IDs
+> and `get_component_example` to fetch full implementation snippets.
 
 </details>
 
