@@ -1,3 +1,10 @@
+### [0.1.0-alpha.16](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.15...v0.1.0-alpha.16) (2026-03-03)
+
+### 🚀 Features
+
+- improve search (#118)
+  [(5af7a89)](https://github.com/taiga-family/taiga-ui-mcp/commit/5af7a8941238f2d42e7bc56139d5306feee44ea8)
+
 ### [0.1.0-alpha.15](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.14...v0.1.0-alpha.15) (2026-01-12)
 
 ### [0.1.0-alpha.14](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.13...v0.1.0-alpha.14) (2025-12-22)
