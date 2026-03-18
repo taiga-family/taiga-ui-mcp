@@ -22,6 +22,16 @@
         "url": "git+https://github.com/taiga-family/taiga-ui-mcp.git"
     },
     "license": "Apache-2.0",
+    "contributors": [
+        {
+            "name": "Vladimir Potekhin",
+            "email": "vladimir.potekh@gmail.com"
+        },
+        {
+            "name": "German Panov",
+            "email": "zidakbew@gmail.com"
+        }
+    ],
     "type": "module",
     "main": "./dist/index.js",
     "bin": {
@@ -70,9 +80,5 @@
     },
     "engines": {
         "node": ">=18.0.0"
-    },
-    "authors": [
-        "Vladimir Potekhin <vladimir.potekh@gmail.com>",
-        "German Panov <zidakbew@gmail.com>"
-    ]
+    }
 }
