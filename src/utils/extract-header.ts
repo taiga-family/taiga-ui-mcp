@@ -300,10 +300,21 @@ function parseSection(content: string): HeaderSection {
                 }
             }
 
+            const subsectionCodeBlocks = extractCodeBlocks(subsectionContent);
+            const subsectionSections =
+                subsectionCodeBlocks.length > 0 && subsectionCodeBlocks[0]
+                    ? [
+                          {
+                              section: current.title,
+                              code: subsectionCodeBlocks[0].code,
+                          },
+                      ]
+                    : [];
+
             currentSubsection = {
                 title: current.title,
                 content: extractPlainContent(subsectionContent),
-                sections: [],
+                sections: subsectionSections,
                 items: [],
             };
         }
@@ -534,8 +545,35 @@ export function parseHeaderSections(headerContent: string): ParsedHeader {
         regularSections.push(gettingStartedSection);
     }
 
+    const compactSections = regularSections.map((section) => {
+        if (section.title !== 'Getting Started') {
+            return section;
+        }
+
+        return {
+            ...section,
+            subsections: section.subsections.map((subsection) => {
+                const redundantSingleCodeSection =
+                    subsection.content.length === 0 &&
+                    !subsection.items?.length &&
+                    subsection.sections?.length === 1 &&
+                    subsection.sections[0]?.section === subsection.title &&
+                    Boolean(subsection.sections[0]?.code);
+
+                if (!redundantSingleCodeSection) {
+                    return subsection;
+                }
+
+                return {
+                    title: subsection.title,
+                    content: [subsection.sections?.[0]?.code ?? ''],
+                };
+            }),
+        };
+    });
+
     return {
         title,
-        sections: regularSections,
+        sections: compactSections,
     };
 }
