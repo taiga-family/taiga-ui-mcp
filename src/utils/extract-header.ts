@@ -300,16 +300,15 @@ function parseSection(content: string): HeaderSection {
                 }
             }
 
-            const subsectionCodeBlocks = extractCodeBlocks(subsectionContent);
-            const subsectionSections =
-                subsectionCodeBlocks.length > 0 && subsectionCodeBlocks[0]
-                    ? [
-                          {
-                              section: current.title,
-                              code: subsectionCodeBlocks[0].code,
-                          },
-                      ]
-                    : [];
+            const [block] = extractCodeBlocks(subsectionContent);
+            const subsectionSections = block
+                ? [
+                      {
+                          section: current.title,
+                          code: block.code,
+                      },
+                  ]
+                : [];
 
             currentSubsection = {
                 title: current.title,
@@ -503,50 +502,12 @@ export function parseHeaderSections(headerContent: string): ParsedHeader {
         sections.push(parsedSection);
     }
 
-    // Post-process: group .md sections into "Getting Started"
-    const gettingStartedSections: HeaderSection[] = [];
-    const regularSections: HeaderSection[] = [];
+    const compactSections = sections.map((section) => {
+        const hasMarkdownSubsections = section.subsections.some((subsection) =>
+            subsection.title.endsWith('.md'),
+        );
 
-    for (const section of sections) {
-        if (section.title.endsWith('.md')) {
-            gettingStartedSections.push(section);
-        } else {
-            regularSections.push(section);
-        }
-    }
-
-    // Create "Getting Started" parent section if we have .md sections
-    if (gettingStartedSections.length > 0) {
-        const gettingStartedSection: HeaderSection = {
-            title: 'Getting Started',
-            description: 'Installation and setup guides',
-            criticalNotices: [],
-            subsections: gettingStartedSections.map((mdSection) => {
-                // Convert HeaderSection to Subsection
-                const subsection: Subsection = {
-                    title: mdSection.title.replace('.md', ''), // Remove .md extension
-                    content: [],
-                };
-
-                // .md sections already have code in content[0]
-                // Just copy it directly
-                if (mdSection.subsections.length > 0) {
-                    const firstSub = mdSection.subsections[0];
-
-                    if (firstSub?.content && firstSub.content.length > 0) {
-                        subsection.content = [...firstSub.content];
-                    }
-                }
-
-                return subsection;
-            }),
-        };
-
-        regularSections.push(gettingStartedSection);
-    }
-
-    const compactSections = regularSections.map((section) => {
-        if (section.title !== 'Getting Started') {
+        if (!hasMarkdownSubsections) {
             return section;
         }
 
@@ -558,7 +519,7 @@ export function parseHeaderSections(headerContent: string): ParsedHeader {
                     !subsection.items?.length &&
                     subsection.sections?.length === 1 &&
                     subsection.sections[0]?.section === subsection.title &&
-                    Boolean(subsection.sections[0]?.code);
+                    Boolean(subsection.sections[0].code);
 
                 if (!redundantSingleCodeSection) {
                     return subsection;
