@@ -300,10 +300,20 @@ function parseSection(content: string): HeaderSection {
                 }
             }
 
+            const [block] = extractCodeBlocks(subsectionContent);
+            const subsectionSections = block
+                ? [
+                      {
+                          section: current.title,
+                          code: block.code,
+                      },
+                  ]
+                : [];
+
             currentSubsection = {
                 title: current.title,
                 content: extractPlainContent(subsectionContent),
-                sections: [],
+                sections: subsectionSections,
                 items: [],
             };
         }
@@ -492,50 +502,39 @@ export function parseHeaderSections(headerContent: string): ParsedHeader {
         sections.push(parsedSection);
     }
 
-    // Post-process: group .md sections into "Getting Started"
-    const gettingStartedSections: HeaderSection[] = [];
-    const regularSections: HeaderSection[] = [];
+    const compactSections = sections.map((section) => {
+        const hasMarkdownSubsections = section.subsections.some((subsection) =>
+            subsection.title.endsWith('.md'),
+        );
 
-    for (const section of sections) {
-        if (section.title.endsWith('.md')) {
-            gettingStartedSections.push(section);
-        } else {
-            regularSections.push(section);
+        if (!hasMarkdownSubsections) {
+            return section;
         }
-    }
 
-    // Create "Getting Started" parent section if we have .md sections
-    if (gettingStartedSections.length > 0) {
-        const gettingStartedSection: HeaderSection = {
-            title: 'Getting Started',
-            description: 'Installation and setup guides',
-            criticalNotices: [],
-            subsections: gettingStartedSections.map((mdSection) => {
-                // Convert HeaderSection to Subsection
-                const subsection: Subsection = {
-                    title: mdSection.title.replace('.md', ''), // Remove .md extension
-                    content: [],
-                };
+        return {
+            ...section,
+            subsections: section.subsections.map((subsection) => {
+                const redundantSingleCodeSection =
+                    subsection.content.length === 0 &&
+                    !subsection.items?.length &&
+                    subsection.sections?.length === 1 &&
+                    subsection.sections[0]?.section === subsection.title &&
+                    Boolean(subsection.sections[0].code);
 
-                // .md sections already have code in content[0]
-                // Just copy it directly
-                if (mdSection.subsections.length > 0) {
-                    const firstSub = mdSection.subsections[0];
-
-                    if (firstSub?.content && firstSub.content.length > 0) {
-                        subsection.content = [...firstSub.content];
-                    }
+                if (!redundantSingleCodeSection) {
+                    return subsection;
                 }
 
-                return subsection;
+                return {
+                    title: subsection.title,
+                    content: [subsection.sections?.[0]?.code ?? ''],
+                };
             }),
         };
-
-        regularSections.push(gettingStartedSection);
-    }
+    });
 
     return {
         title,
-        sections: regularSections,
+        sections: compactSections,
     };
 }
