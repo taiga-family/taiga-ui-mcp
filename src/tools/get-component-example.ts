@@ -2,6 +2,7 @@ import {type McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
 import {z} from 'zod';
 
 import {ensureSourceLoaded} from '../server/fetch.js';
+import {getState} from '../server/server.js';
 import {buildQueryResults} from '../utils/query-results.js';
 
 export function registerGetComponentExampleTool(server: McpServer): void {
@@ -10,8 +11,15 @@ export function registerGetComponentExampleTool(server: McpServer): void {
         {
             title: 'Get Component Example',
             description:
-                'Return section-related content snippets (formerly examples) for specified documentation section name(s). The presence of id indicates a successful match.',
-            inputSchema: {names: z.array(z.string().min(2)).min(1)},
+                'Return section-related content snippets (formerly examples) for specified documentation section name(s). The presence of id indicates a successful match. Supports optional version parameter to query v4 or v5 documentation.',
+            inputSchema: {
+                names: z.array(z.string().min(2)).min(1),
+                version: z
+                    .enum(['v4', 'v5'])
+                    .optional()
+                    .default('v5')
+                    .describe('Documentation version to query. Defaults to v5 (latest).'),
+            },
             outputSchema: {
                 results: z.array(
                     z.object({
@@ -26,7 +34,7 @@ export function registerGetComponentExampleTool(server: McpServer): void {
                 matched: z.number(),
             },
         },
-        async ({names}: {names: string[]}) => {
+        async ({names, version}: {names: string[]; version?: string}) => {
             if (!names.length) {
                 const output = {error: 'Provide at least one name in names array.'};
 
@@ -36,9 +44,11 @@ export function registerGetComponentExampleTool(server: McpServer): void {
                 };
             }
 
-            await ensureSourceLoaded();
+            const ver = version ?? 'v5';
 
-            const {results, matches} = buildQueryResults(names);
+            await ensureSourceLoaded(ver);
+
+            const {results, matches} = buildQueryResults(names, getState(ver).sections);
             const output = {results, matched: matches};
 
             return {

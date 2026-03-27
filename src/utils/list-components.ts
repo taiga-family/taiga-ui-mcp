@@ -1,4 +1,4 @@
-import {state} from '../server/server.js';
+import {type DocSection} from '../schemas/doc-types.js';
 
 export interface ListedComponent {
     id: string;
@@ -8,10 +8,13 @@ export interface ListedComponent {
     type: string | null;
 }
 
-export function constructComponentsList(query = ''): ListedComponent[] {
+export function constructComponentsList(
+    query = '',
+    sections: readonly DocSection[] = [],
+): ListedComponent[] {
     const normalizedQuery = query.toLowerCase().replace(/^tui/, '');
 
-    return state.sections
+    return sections
         .filter(
             (section) =>
                 !normalizedQuery || section.id.toLowerCase().includes(normalizedQuery),

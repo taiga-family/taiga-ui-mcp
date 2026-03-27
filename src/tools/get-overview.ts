@@ -2,7 +2,7 @@ import {type McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
 import {z} from 'zod';
 
 import {ensureSourceLoaded} from '../server/fetch.js';
-import {state} from '../server/server.js';
+import {getState} from '../server/server.js';
 import {
     type HeaderSection,
     parseHeaderSections,
@@ -38,8 +38,18 @@ export function registerGetOverviewTool(server: McpServer): void {
         {
             title: 'Get Documentation Overview',
             description:
-                'Call this tool FIRST to retrieve the fully structured documentation header as JSON. Returns hierarchical sections with parsed content (no raw markdown). Includes installation instructions, critical notices, and subsections with their content and code blocks. This provides essential context before exploring specific components.',
-            inputSchema: z.object({}).optional(),
+                'Call this tool FIRST to retrieve the fully structured documentation header as JSON. Returns hierarchical sections with parsed content (no raw markdown). Includes installation instructions, critical notices, and subsections with their content and code blocks. This provides essential context before exploring specific components. Supports optional version parameter to query v4 or v5 documentation.',
+            inputSchema: z
+                .object({
+                    version: z
+                        .enum(['v4', 'v5'])
+                        .optional()
+                        .default('v5')
+                        .describe(
+                            'Documentation version to query. Defaults to v5 (latest).',
+                        ),
+                })
+                .optional(),
             outputSchema: {
                 title: z.string(),
                 sections: z.array(
@@ -84,11 +94,15 @@ export function registerGetOverviewTool(server: McpServer): void {
                 sourceUrl: z.string().optional(),
             },
         },
-        async () => {
-            await ensureSourceLoaded();
+        async (args?: {version?: string}) => {
+            const ver = args?.version ?? 'v5';
 
-            const headerInfo = state.overview
-                ? parseHeaderSections(state.overview)
+            await ensureSourceLoaded(ver);
+
+            const s = getState(ver);
+
+            const headerInfo = s.overview
+                ? parseHeaderSections(s.overview)
                 : {
                       title: 'Taiga UI Documentation',
                       sections: [],
@@ -142,8 +156,8 @@ export function registerGetOverviewTool(server: McpServer): void {
 
                     return sectionData;
                 }),
-                totalComponents: state.sections.length,
-                sourceUrl: state.sourceUrl,
+                totalComponents: s.sections.length,
+                sourceUrl: s.sourceUrl,
             };
 
             return {

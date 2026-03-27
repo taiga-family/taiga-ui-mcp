@@ -1,6 +1,12 @@
 import {type DocSection} from '../schemas/doc-types.js';
-import {state} from '../server/server.js';
 import {extractHeaderContent, findComponentsSectionStart} from './extract-header.js';
+import {parseComponentSection} from './parse-component-section.js';
+
+interface ParsedContent {
+    sections: DocSection[];
+    overview: string;
+    sourceUrl: string;
+}
 
 function extractMeta(text: string): {package?: string; kind?: string} {
     let pkg: string | undefined;
@@ -21,13 +27,8 @@ function extractMeta(text: string): {package?: string; kind?: string} {
     return {package: pkg, kind};
 }
 
-export function parseContent(rawContent: string, sourceUrl: string): void {
-    state.sourceUrl = sourceUrl;
-
-    // Extract and store header separately
-    const headerContent = extractHeaderContent(rawContent);
-
-    state.overview = headerContent;
+export function parseContent(rawContent: string, sourceUrl: string): ParsedContent {
+    const overview = extractHeaderContent(rawContent);
 
     const lines = rawContent.split(/\r?\n/);
     const componentsStartLine = findComponentsSectionStart(rawContent);
@@ -53,7 +54,7 @@ export function parseContent(rawContent: string, sourceUrl: string): void {
         }
     }
 
-    state.sections = headerIndices.map((header, headerIndex): DocSection => {
+    const sections = headerIndices.map((header, headerIndex): DocSection => {
         const start = header.line;
         const end = headerIndices[headerIndex + 1]?.line ?? lines.length;
         const content = lines.slice(start, end).join('\n');
@@ -65,6 +66,9 @@ export function parseContent(rawContent: string, sourceUrl: string): void {
             content,
             package: meta.package,
             kind: meta.kind,
+            parsedContent: parseComponentSection(content),
         };
     });
+
+    return {sections, overview, sourceUrl};
 }
