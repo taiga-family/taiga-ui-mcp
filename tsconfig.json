@@ -2,15 +2,15 @@
     "extends": "@taiga-ui/tsconfig",
     "compilerOptions": {
         "baseUrl": "./",
-        "outDir": "./dist",
         "rootDir": "./src",
-        "esModuleInterop": true,
         "checkJs": false,
-        "types": ["node"],
-        "typeRoots": ["node_modules/@types", "node_modules/@taiga-ui/tsconfig"],
+        "esModuleInterop": true,
         "module": "NodeNext",
         "moduleResolution": "NodeNext",
-        "target": "ES2022"
+        "outDir": "./dist",
+        "target": "ES2022",
+        "typeRoots": ["node_modules/@types", "node_modules/@taiga-ui/tsconfig"],
+        "types": ["node"]
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules"]

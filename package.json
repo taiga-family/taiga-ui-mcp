@@ -24,12 +24,12 @@
     "license": "Apache-2.0",
     "contributors": [
         {
-            "name": "Vladimir Potekhin",
-            "email": "vladimir.potekh@gmail.com"
+            "email": "vladimir.potekh@gmail.com",
+            "name": "Vladimir Potekhin"
         },
         {
-            "name": "German Panov",
-            "email": "zidakbew@gmail.com"
+            "email": "zidakbew@gmail.com",
+            "name": "German Panov"
         }
     ],
     "type": "module",
@@ -37,9 +37,7 @@
     "bin": {
         "taiga-ui-mcp": "./dist/index.js"
     },
-    "files": [
-        "dist/"
-    ],
+    "files": ["dist/"],
     "scripts": {
         "build": "npm run clean && tsc --incremental false && chmod 755 dist/index.js",
         "clean": "rm -rf dist",
@@ -53,19 +51,12 @@
         "typecheck": "tsc --noEmit --incremental false"
     },
     "commitlint": {
-        "extends": [
-            "@taiga-ui/commitlint-config"
-        ]
+        "extends": ["@taiga-ui/commitlint-config"]
     },
     "lint-staged": {
-        "*.{js,ts,html,md,less,json,svg,yml}": [
-            "npm run lint -- --fix",
-            "prettier --write"
-        ]
+        "*.{js,ts,html,md,less,json,svg,yml}": ["npm run lint -- --fix", "prettier --write"]
     },
-    "browserslist": [
-        "extends @taiga-ui/browserslist-config"
-    ],
+    "browserslist": ["extends @taiga-ui/browserslist-config"],
     "prettier": "@taiga-ui/prettier-config",
     "dependencies": {
         "@modelcontextprotocol/sdk": "1.29.0",
