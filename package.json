@@ -37,7 +37,9 @@
     "bin": {
         "taiga-ui-mcp": "./dist/index.js"
     },
-    "files": ["dist/"],
+    "files": [
+        "dist/"
+    ],
     "scripts": {
         "build": "npm run clean && tsc --incremental false && chmod 755 dist/index.js",
         "clean": "rm -rf dist",
@@ -51,19 +53,26 @@
         "typecheck": "tsc --noEmit --incremental false"
     },
     "commitlint": {
-        "extends": ["@taiga-ui/commitlint-config"]
+        "extends": [
+            "@taiga-ui/commitlint-config"
+        ]
     },
     "lint-staged": {
-        "*.{js,ts,html,md,less,json,svg,yml}": ["npm run lint -- --fix", "prettier --write"]
+        "*.{js,ts,html,md,less,json,svg,yml}": [
+            "npm run lint -- --fix",
+            "prettier --write"
+        ]
     },
-    "browserslist": ["extends @taiga-ui/browserslist-config"],
+    "browserslist": [
+        "extends @taiga-ui/browserslist-config"
+    ],
     "prettier": "@taiga-ui/prettier-config",
     "dependencies": {
         "@modelcontextprotocol/sdk": "1.29.0",
         "zod": "3.25.76"
     },
     "devDependencies": {
-        "@taiga-ui/configs": "0.448.0",
+        "@taiga-ui/configs": "0.449.0",
         "@types/node": "24.10.11",
         "husky": "9.1.7",
         "typescript": "5.9.3"
