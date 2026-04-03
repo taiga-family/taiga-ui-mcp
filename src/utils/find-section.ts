@@ -34,7 +34,7 @@ export function findSection(name: string): DocSection | undefined {
         .toLowerCase()
         .split(/[-_\s]+/)
         .filter(Boolean)
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
         .join('');
 
     const tuiVariant = pascalCase.startsWith('Tui') ? pascalCase : `Tui${pascalCase}`;
