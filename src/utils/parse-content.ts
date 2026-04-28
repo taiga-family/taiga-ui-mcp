@@ -22,20 +22,6 @@ function extractMeta(text: string): {package?: string; kind?: string} {
     return {package: pkg, kind};
 }
 
-export function findMigrationGuideStartLine(rawContent: string): number {
-    const lines = rawContent.split(/\r?\n/);
-
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-
-        if (line === '---' && lines[i + 1]?.startsWith('# Migration Guide')) {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
 export function parseContent(rawContent: string, sourceUrl: string): void {
     if (!rawContent.trim()) {
         throw new Error('parseContent: rawContent is empty');
@@ -63,11 +49,12 @@ export function parseContent(rawContent: string, sourceUrl: string): void {
             continue;
         }
 
-        if (lineIndex > componentsStartLine && /^#\s+[^c]/.test(line)) {
+        const isH1 = /^#\s+/.test(line);
+        const headerMatch = /^#\s+(components\/\S.*)$/.exec(line);
+
+        if (lineIndex > componentsStartLine && isH1 && !headerMatch) {
             break;
         }
-
-        const headerMatch = /^#\s+(components\/\S.*)$/.exec(line);
 
         if (headerMatch?.[1]) {
             headerIndices.push({

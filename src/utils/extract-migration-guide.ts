@@ -1,14 +1,14 @@
 export interface MigrationSection {
     title: string;
     content: string[];
-    code?: string;
+    codeBlocks?: string[];
     subsections?: MigrationSubsection[];
 }
 
 export interface MigrationSubsection {
     title: string;
     content: string[];
-    code?: string;
+    codeBlocks?: string[];
 }
 
 export interface ParsedMigrationGuide {
@@ -64,14 +64,32 @@ export function parseMigrationGuide(migrationContent: string): ParsedMigrationGu
     let currentSection: MigrationSection | null = null;
     let currentSubsection: MigrationSubsection | null = null;
     let inCodeBlock = false;
+    let inHtmlComment = false;
     let currentCode: string[] = [];
+
+    const appendCode = (code: string): void => {
+        if (currentSubsection) {
+            currentSubsection.codeBlocks = currentSubsection.codeBlocks || [];
+            currentSubsection.codeBlocks.push(code);
+
+            return;
+        }
+
+        if (currentSection) {
+            currentSection.codeBlocks = currentSection.codeBlocks || [];
+            currentSection.codeBlocks.push(code);
+        }
+    };
 
     const pushCurrentSubsection = (): void => {
         if (!currentSubsection || !currentSection) {
             return;
         }
 
-        if (currentSubsection.content.length > 0 || currentSubsection.code) {
+        if (
+            currentSubsection.content.length > 0 ||
+            (currentSubsection.codeBlocks && currentSubsection.codeBlocks.length > 0)
+        ) {
             currentSection.subsections = currentSection.subsections || [];
             currentSection.subsections.push(currentSubsection);
         }
@@ -88,7 +106,7 @@ export function parseMigrationGuide(migrationContent: string): ParsedMigrationGu
 
         if (
             currentSection.content.length > 0 ||
-            currentSection.code ||
+            (currentSection.codeBlocks && currentSection.codeBlocks.length > 0) ||
             (currentSection.subsections && currentSection.subsections.length > 0)
         ) {
             sections.push(currentSection);
@@ -98,24 +116,14 @@ export function parseMigrationGuide(migrationContent: string): ParsedMigrationGu
     };
 
     for (const line of lines) {
-        if (!line) {
-            continue;
-        }
-
-        if (line === '---') {
-            continue;
-        }
-
         if (line.startsWith('```')) {
             if (inCodeBlock) {
                 inCodeBlock = false;
 
-                const code = currentCode.join('\n').trim();
+                const code = currentCode.join('\n');
 
-                if (currentSubsection) {
-                    currentSubsection.code = code;
-                } else if (currentSection) {
-                    currentSection.code = code;
+                if (code || currentCode.length > 0) {
+                    appendCode(code);
                 }
 
                 currentCode = [];
@@ -128,6 +136,23 @@ export function parseMigrationGuide(migrationContent: string): ParsedMigrationGu
 
         if (inCodeBlock) {
             currentCode.push(line);
+            continue;
+        }
+
+        if (inHtmlComment) {
+            if (line.includes('-->')) {
+                inHtmlComment = false;
+            }
+
+            continue;
+        }
+
+        if (line.startsWith('<!--')) {
+            inHtmlComment = !line.includes('-->');
+            continue;
+        }
+
+        if (!line || line === '---') {
             continue;
         }
 
@@ -214,6 +239,10 @@ export function parseMigrationGuide(migrationContent: string): ParsedMigrationGu
                 introduction.push(cleaned);
             }
         }
+    }
+
+    if (inCodeBlock && currentCode.length > 0) {
+        appendCode(currentCode.join('\n'));
     }
 
     pushCurrentSubsection();

@@ -20,13 +20,13 @@ export function registerGetMigrationGuideTool(server: McpServer): void {
                     z.object({
                         title: z.string(),
                         content: z.array(z.string()),
-                        code: z.string().optional(),
+                        codeBlocks: z.array(z.string()).optional(),
                         subsections: z
                             .array(
                                 z.object({
                                     title: z.string(),
                                     content: z.array(z.string()),
-                                    code: z.string().optional(),
+                                    codeBlocks: z.array(z.string()).optional(),
                                 }),
                             )
                             .optional(),
@@ -59,8 +59,8 @@ export function registerGetMigrationGuideTool(server: McpServer): void {
                         content: section.content,
                     };
 
-                    if (section.code) {
-                        sectionData.code = section.code;
+                    if (section.codeBlocks && section.codeBlocks.length > 0) {
+                        sectionData.codeBlocks = section.codeBlocks;
                     }
 
                     if (section.subsections && section.subsections.length > 0) {
@@ -70,8 +70,8 @@ export function registerGetMigrationGuideTool(server: McpServer): void {
                                 content: sub.content,
                             };
 
-                            if (sub.code) {
-                                subData.code = sub.code;
+                            if (sub.codeBlocks && sub.codeBlocks.length > 0) {
+                                subData.codeBlocks = sub.codeBlocks;
                             }
 
                             return subData;
