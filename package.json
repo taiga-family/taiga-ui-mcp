@@ -73,7 +73,7 @@
     },
     "devDependencies": {
         "@taiga-ui/configs": "0.491.0",
-        "@types/node": "24.10.11",
+        "@types/node": "24.10.15",
         "husky": "9.1.7",
         "typescript": "5.9.3"
     },
