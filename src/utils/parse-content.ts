@@ -5,7 +5,6 @@ import {extractHeaderContent, findComponentsSectionStart} from './extract-header
 function extractMeta(text: string): {package?: string; kind?: string} {
     let pkg: string | undefined;
     let kind: string | undefined;
-
     const pkgMatch = /\*\*Package\*\*:\s*`([^`]+)`/i.exec(text);
 
     if (pkgMatch?.[1]) {
@@ -31,7 +30,6 @@ export function parseContent(rawContent: string, sourceUrl: string): void {
 
     const lines = rawContent.split(/\r?\n/);
     const componentsStartLine = findComponentsSectionStart(rawContent);
-
     const headerIndices: Array<{line: number; title: string}> = [];
 
     // Find all level-1 headings that are components (starting after the horizontal rule)

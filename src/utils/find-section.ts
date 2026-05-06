@@ -26,8 +26,10 @@ export function findSection(name: string): DocSection | undefined {
     // Last word of kebab: "icon-button" → "button" (useful for compound names like TuiIconButton)
     // Exclude generic Angular suffixes that match too broadly
     const kebabParts = kebab.split('-').filter(Boolean);
+
     const lastWordCandidate =
         kebabParts.length > 1 ? (kebabParts[kebabParts.length - 1] ?? '') : '';
+
     const lastWord = GENERIC_SUFFIXES.has(lastWordCandidate) ? '' : lastWordCandidate;
 
     const pascalCase = (stripped || name)
@@ -97,12 +99,12 @@ export function findSection(name: string): DocSection | undefined {
 
 export function suggestSections(query: string): string[] {
     const kebab = normalizeToKebab(query);
+
     const parts = kebab
         .split('-')
         .filter((p) => !GENERIC_SUFFIXES.has(p) && p.length > 1);
     // Try full kebab first, then without generic suffixes
     const normalizedQuery = (parts.join('-') || kebab || query).toLowerCase();
-
     const results: Array<{id: string; score: number}> = [];
 
     for (const section of state.sections) {
