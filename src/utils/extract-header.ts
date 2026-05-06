@@ -301,6 +301,7 @@ function parseSection(content: string): HeaderSection {
             }
 
             const [block] = extractCodeBlocks(subsectionContent);
+
             const subsectionSections = block
                 ? [
                       {
@@ -496,7 +497,6 @@ export function parseHeaderSections(headerContent: string): ParsedHeader {
         const start = currentSection.line;
         const end = sectionIndices[i + 1]?.line ?? lines.length;
         const sectionContent = lines.slice(start, end).join('\n');
-
         const parsedSection = parseSection(sectionContent);
 
         sections.push(parsedSection);
@@ -507,30 +507,26 @@ export function parseHeaderSections(headerContent: string): ParsedHeader {
             subsection.title.endsWith('.md'),
         );
 
-        if (!hasMarkdownSubsections) {
-            return section;
-        }
+        return hasMarkdownSubsections
+            ? {
+                  ...section,
+                  subsections: section.subsections.map((subsection) => {
+                      const redundantSingleCodeSection =
+                          subsection.content.length === 0 &&
+                          !subsection.items?.length &&
+                          subsection.sections?.length === 1 &&
+                          subsection.sections[0]?.section === subsection.title &&
+                          Boolean(subsection.sections[0].code);
 
-        return {
-            ...section,
-            subsections: section.subsections.map((subsection) => {
-                const redundantSingleCodeSection =
-                    subsection.content.length === 0 &&
-                    !subsection.items?.length &&
-                    subsection.sections?.length === 1 &&
-                    subsection.sections[0]?.section === subsection.title &&
-                    Boolean(subsection.sections[0].code);
-
-                if (!redundantSingleCodeSection) {
-                    return subsection;
-                }
-
-                return {
-                    title: subsection.title,
-                    content: [subsection.sections?.[0]?.code ?? ''],
-                };
-            }),
-        };
+                      return redundantSingleCodeSection
+                          ? {
+                                title: subsection.title,
+                                content: [subsection.sections?.[0]?.code ?? ''],
+                            }
+                          : subsection;
+                  }),
+              }
+            : section;
     });
 
     return {
