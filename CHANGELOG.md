@@ -1,3 +1,10 @@
+### [0.2.0](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0...v0.2.0) (2026-05-14)
+
+### 🚀 Features
+
+- add get_migration_guide tool ([#163](https://github.com/taiga-family/taiga-ui-mcp/pull/163))
+  [(cdfdfa5)](https://github.com/taiga-family/taiga-ui-mcp/commit/cdfdfa5aee6dd98821b8ff9dcb23114c1ef9aa68)
+
 ### [0.1.0](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.16...v0.1.0) (2026-04-02)
 
 ### [0.1.0-alpha.16](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.1.0-alpha.15...v0.1.0-alpha.16) (2026-03-03)
