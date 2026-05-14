@@ -12,8 +12,8 @@ development workflow.
 ### Key Features
 
 - **Docs + code snippets**. Full Taiga UI markdown plus ready Angular examples in one place.
-- **Three MCP tools**. Get structured overview with `get_overview`, discover with `get_list_components`, fetch examples
-  via `get_component_example`.
+- **Four MCP tools**. Get structured overview with `get_overview`, discover with `get_list_components`, fetch examples
+  via `get_component_example`, and access migration guides with `get_migration_guide`.
 - **Configurable & lightweight**. Swap source URL (stable/next) without local Angular install.
 
 ### Requirements
@@ -143,8 +143,44 @@ get_component_example({names: ['Alert']});
 }
 ```
 
-> Tip: Start with `get_overview` to get import map and common mistakes, then use `get_list_components` to discover IDs
-> and `get_component_example` to fetch full implementation snippets.
+4. `get_migration_guide`
+   - Returns the complete Migration Guide for Taiga UI version updates with pre-update checklist, migration instructions
+     via schematics, and troubleshooting for common issues.
+   - Use this tool when you need to migrate between Taiga UI major versions or understand the migration process.
+   - Input: none (no parameters required).
+   - Output: `title`, `introduction` with version info, and `sections` array with migration guidance, code blocks for
+     CLI commands, and solutions for common problems.
+
+```ts
+get_migration_guide();
+```
+
+```json
+{
+  "title": "Migration Guide",
+  "introduction": [
+    "**Guide to update Taiga UI v{CURRENT_MAJOR} -> v{NEXT_MAJOR}**"
+  ],
+  "sections": [
+    {
+      "title": "Before You Update",
+      "content": [...]
+    },
+    {
+      "title": "Updating",
+      "content": [...],
+      "codeBlocks": [...]
+    },
+    {
+      "title": "Troubleshooting",
+      "content": [...]
+    }
+  ]
+}
+```
+
+> Tip: Start with `get_overview` to get import map and common mistakes, then use `get_list_components` to discover IDs,
+> `get_component_example` to fetch full implementation snippets, and `get_migration_guide` for version upgrade guidance.
 
 </details>
 

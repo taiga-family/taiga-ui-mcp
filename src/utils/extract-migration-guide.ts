@@ -25,7 +25,6 @@ export function extractMigrationGuideContent(rawContent: string): string | undef
     const lines = rawContent.split(/\r?\n/);
     let startIndex = -1;
     let endIndex = lines.length;
-
     const migrationGuideRegex = /^#\s+Migration\s+Guide/i;
     const componentsRegex = /^#\s+components\//;
 
@@ -47,20 +46,16 @@ export function extractMigrationGuideContent(rawContent: string): string | undef
         }
     }
 
-    if (startIndex === -1) {
-        return undefined;
-    }
-
-    return lines.slice(startIndex, endIndex).join('\n').trim();
+    return startIndex === -1
+        ? undefined
+        : lines.slice(startIndex, endIndex).join('\n').trim();
 }
 
 export function parseMigrationGuide(migrationContent: string): ParsedMigrationGuide {
     const lines = migrationContent.split(/\r?\n/);
-
     let title = 'Migration Guide';
     const introduction: string[] = [];
     const sections: MigrationSection[] = [];
-
     let currentSection: MigrationSection | null = null;
     let currentSubsection: MigrationSubsection | null = null;
     let inCodeBlock = false;
