@@ -144,10 +144,12 @@ get_component_example({names: ['Alert']});
 ```
 
 4. `get_migration_guide`
-   - Returns the complete Migration Guide for Taiga UI version updates with pre-update checklist, migration instructions via schematics, and troubleshooting for common issues.
+   - Returns the complete Migration Guide for Taiga UI version updates with pre-update checklist, migration instructions
+     via schematics, and troubleshooting for common issues.
    - Use this tool when you need to migrate between Taiga UI major versions or understand the migration process.
    - Input: none (no parameters required).
-   - Output: `title`, `introduction` with version info, and `sections` array with migration guidance, code blocks for CLI commands, and solutions for common problems.
+   - Output: `title`, `introduction` with version info, and `sections` array with migration guidance, code blocks for
+     CLI commands, and solutions for common problems.
 
 ```ts
 get_migration_guide();
