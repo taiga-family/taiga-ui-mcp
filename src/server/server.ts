@@ -11,6 +11,7 @@ import {ensureSourceLoaded} from './fetch.js';
 export interface IndexState {
     sections: DocSection[];
     overview?: string;
+    migrationGuide?: string;
     sourceUrl?: string;
     lastLoadedAt?: number;
 }
@@ -18,6 +19,7 @@ export interface IndexState {
 export const state: IndexState = {
     sections: [],
     overview: undefined,
+    migrationGuide: undefined,
     sourceUrl: undefined,
     lastLoadedAt: undefined,
 };
@@ -41,6 +43,8 @@ Use these tools to discover, understand, and retrieve usage examples for Taiga U
 * **2. Discover Components:** Call \`get_list_components\` to see all available Taiga UI components. Use the optional \`query\` parameter for fuzzy filtering to find specific components.
 
 * **3. Get Component Examples:** Once you identify needed component(s), call \`get_component_example\` with component name(s) to retrieve full documentation and code examples.
+
+* **4. Get Migration Guide:** Call \`get_migration_guide\` for step-by-step migration instructions, troubleshooting, and common issues when updating Taiga UI versions.
 </Core Workflows & Tool Guide>
 
 <Key Concepts>

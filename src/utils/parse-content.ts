@@ -1,6 +1,7 @@
 import {type DocSection} from '../schemas/doc-types.js';
 import {state} from '../server/server.js';
 import {extractHeaderContent, findComponentsSectionStart} from './extract-header.js';
+import {extractMigrationGuideContent} from './extract-migration-guide.js';
 
 function extractMeta(text: string): {package?: string; kind?: string} {
     let pkg: string | undefined;
@@ -21,18 +22,24 @@ function extractMeta(text: string): {package?: string; kind?: string} {
 }
 
 export function parseContent(rawContent: string, sourceUrl: string): void {
+    if (!rawContent.trim()) {
+        throw new Error('parseContent: rawContent is empty');
+    }
+
     state.sourceUrl = sourceUrl;
 
-    // Extract and store header separately
     const headerContent = extractHeaderContent(rawContent);
 
     state.overview = headerContent;
+
+    const migrationGuideContent = extractMigrationGuideContent(rawContent);
+
+    state.migrationGuide = migrationGuideContent;
 
     const lines = rawContent.split(/\r?\n/);
     const componentsStartLine = findComponentsSectionStart(rawContent);
     const headerIndices: Array<{line: number; title: string}> = [];
 
-    // Find all level-1 headings that are components (starting after the horizontal rule)
     for (let lineIndex = componentsStartLine; lineIndex < lines.length; lineIndex++) {
         const line = lines[lineIndex];
 
@@ -40,8 +47,12 @@ export function parseContent(rawContent: string, sourceUrl: string): void {
             continue;
         }
 
-        // Match level-1 headings for components (# ...)
-        const headerMatch = /^#\s+(\S.*)$/.exec(line);
+        const isH1 = /^#\s+/.test(line);
+        const headerMatch = /^#\s+(components\/\S.*)$/.exec(line);
+
+        if (lineIndex > componentsStartLine && isH1 && !headerMatch) {
+            break;
+        }
 
         if (headerMatch?.[1]) {
             headerIndices.push({
