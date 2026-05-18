@@ -24,12 +24,12 @@
     "license": "Apache-2.0",
     "contributors": [
         {
-            "name": "Vladimir Potekhin",
-            "email": "vladimir.potekh@gmail.com"
+            "email": "vladimir.potekh@gmail.com",
+            "name": "Vladimir Potekhin"
         },
         {
-            "name": "German Panov",
-            "email": "zidakbew@gmail.com"
+            "email": "zidakbew@gmail.com",
+            "name": "German Panov"
         }
     ],
     "type": "module",
