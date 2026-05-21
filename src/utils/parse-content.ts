@@ -47,12 +47,7 @@ export function parseContent(rawContent: string, sourceUrl: string): void {
             continue;
         }
 
-        const isH1 = /^#\s+/.test(line);
-        const headerMatch = /^#\s+(components\/\S.*)$/.exec(line);
-
-        if (lineIndex > componentsStartLine && isH1 && !headerMatch) {
-            break;
-        }
+        const headerMatch = /^#\s+(\S.*)$/.exec(line);
 
         if (headerMatch?.[1]) {
             headerIndices.push({
