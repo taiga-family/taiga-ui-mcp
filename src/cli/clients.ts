@@ -18,6 +18,7 @@ export interface JsonClientConfig {
     readonly containerKey: string;
     readonly rootDefaults?: Record<string, unknown>;
     readonly note?: string;
+    readonly userScopeOnly?: boolean;
     buildEntry(sourceUrl: string): JsonEntry;
 }
 
@@ -29,6 +30,7 @@ export interface TomlClientConfig {
     readonly userPath: UserPath;
     readonly tableName: string;
     readonly note?: string;
+    readonly userScopeOnly?: boolean;
     buildEntry(sourceUrl: string): TomlEntry;
 }
 
@@ -96,6 +98,16 @@ export const CLIENTS: readonly ClientConfig[] = [
         },
         containerKey: 'servers',
         buildEntry: buildStdioEntry,
+    },
+    {
+        kind: 'json',
+        id: 'windsurf',
+        label: 'Windsurf',
+        configPath: '.codeium/windsurf/mcp_config.json',
+        userPath: '.codeium/windsurf/mcp_config.json',
+        containerKey: 'mcpServers',
+        userScopeOnly: true,
+        buildEntry: buildStandardEntry,
     },
     {
         kind: 'json',

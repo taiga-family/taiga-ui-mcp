@@ -122,6 +122,7 @@ describe('init command (built CLI)', () => {
         assert.equal(status, 1);
         assert.match(stderr, /Unknown client/);
         assert.match(stderr, /cursor/);
+        assert.match(stderr, /windsurf/);
     });
 
     it('does not clobber an existing invalid config', () => {
@@ -348,6 +349,31 @@ describe('init command --scope (built CLI)', () => {
 
         assert.match(project.stdout, /trust this folder in Codex/);
         assert.doesNotMatch(user.stdout, /trust this folder in Codex/);
+    });
+
+    it('writes a user-scope windsurf config under HOME', () => {
+        const {status} = run(['--client', 'windsurf', '--scope', 'user']);
+
+        assert.equal(status, 0);
+        assert.ok(
+            readConfig(join(home, '.codeium/windsurf/mcp_config.json')).mcpServers?.[
+                'taiga-ui'
+            ],
+        );
+    });
+
+    it('forces windsurf to the global config even for project scope', () => {
+        const {status, stdout} = run(['--client', 'windsurf']);
+
+        assert.equal(status, 0);
+        assert.ok(
+            readConfig(join(home, '.codeium/windsurf/mcp_config.json')).mcpServers?.[
+                'taiga-ui'
+            ],
+        );
+        assert.equal(existsSync(join(dir, '.codeium/windsurf/mcp_config.json')), false);
+        assert.match(stdout, /global config/);
+        assert.match(stdout, /~\/\.codeium\/windsurf\/mcp_config\.json/);
     });
 });
 

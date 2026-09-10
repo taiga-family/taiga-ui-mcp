@@ -59,6 +59,20 @@ describe('client registry', () => {
         ]);
     });
 
+    it('uses mcpServers, a standard entry, and user-only scope for windsurf', () => {
+        const client = findClient('windsurf');
+
+        assert.ok(client);
+        assert.ok(client.kind === 'json');
+        assert.equal(client.containerKey, 'mcpServers');
+        assert.equal(client.userScopeOnly, true);
+
+        const entry = client.buildEntry('URL');
+
+        assert.equal(entry.type, undefined);
+        assert.deepEqual(entry.args, ['-y', '@taiga-ui/mcp@latest', '--source-url=URL']);
+    });
+
     it('uses a toml table and a command/args entry for codex', () => {
         const client = findClient('codex');
 
@@ -79,6 +93,7 @@ describe('client registry', () => {
                 '.mcp.json',
                 '.cursor/mcp.json',
                 '.vscode/mcp.json',
+                '.codeium/windsurf/mcp_config.json',
                 'opencode.json',
                 '.codex/config.toml',
             ],

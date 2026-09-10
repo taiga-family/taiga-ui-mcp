@@ -23,7 +23,7 @@ interface InitOptions {
     readonly scope?: string;
 }
 
-interface ResolvedClients {
+export interface ResolvedClients {
     readonly clients: readonly ClientConfig[];
     readonly unknown: readonly string[];
 }
@@ -38,7 +38,7 @@ function collectClients(target: string[], value: string | undefined): void {
     }
 }
 
-function parseArgs(argv: readonly string[]): InitOptions {
+export function parseArgs(argv: readonly string[]): InitOptions {
     const clients: string[] = [];
     let version: string | undefined;
     let sourceUrl: string | undefined;
@@ -80,12 +80,12 @@ export function resolveSourceUrl(version: string): string | undefined {
         : undefined;
 }
 
-function supportedClientsMessage(): string {
+export function supportedClientsMessage(): string {
     return CLIENTS.map((client) => `  - ${client.id} (${client.label})`).join('\n');
 }
 
 // Missing --client: pick from a menu in a terminal, otherwise leave undefined for the error path.
-async function resolveClients(
+export async function resolveClients(
     ids: readonly string[],
 ): Promise<ResolvedClients | undefined> {
     if (ids.length > 0) {
@@ -159,7 +159,7 @@ async function resolveVersion(
 }
 
 // Missing --scope: ask in a terminal, otherwise default to project.
-async function resolveScope(scopeOption: string | undefined): Promise<Scope> {
+export async function resolveScope(scopeOption: string | undefined): Promise<Scope> {
     if (scopeOption !== undefined) {
         if (scopeOption === 'project' || scopeOption === 'user') {
             return scopeOption;
@@ -181,7 +181,7 @@ async function resolveScope(scopeOption: string | undefined): Promise<Scope> {
     return index === 1 ? 'user' : 'project';
 }
 
-function fail(message: string): never {
+export function fail(message: string): never {
     process.stderr.write(message);
     process.exit(1);
 }
@@ -227,9 +227,11 @@ export async function runInit(argv: string[]): Promise<void> {
     const scope = await resolveScope(scopeOption);
     const env = {cwd: process.cwd(), home: homedir(), platform: process.platform};
     const summaries: string[] = [];
+    const notes: string[] = [];
 
     for (const client of resolved.clients) {
-        const filePath = resolveConfigPath(client, scope, env);
+        const effectiveScope = client.userScopeOnly ? 'user' : scope;
+        const filePath = resolveConfigPath(client, effectiveScope, env);
 
         const existed =
             client.kind === 'json'
@@ -237,25 +239,24 @@ export async function runInit(argv: string[]): Promise<void> {
                 : await writeTomlClient(client, filePath, sourceUrl);
 
         summaries.push(
-            `${existed ? 'Updated' : 'Added'} "${SERVER_NAME}" MCP server in ${displayPath(client, scope, env)} (${client.label}).`,
+            `${existed ? 'Updated' : 'Added'} "${SERVER_NAME}" MCP server in ${displayPath(client, effectiveScope, env)} (${client.label}).`,
         );
+
+        if (client.userScopeOnly && scope === 'project') {
+            notes.push(
+                `${client.label} only has a global config, so it was written to ${displayPath(client, effectiveScope, env)} instead of the project.`,
+            );
+        }
+
+        if (client.note !== undefined && effectiveScope === 'project') {
+            notes.push(client.note);
+        }
     }
 
     const restart =
         resolved.clients.length === 1 ? resolved.clients[0]?.label : 'your clients';
 
-    const notes =
-        scope === 'project'
-            ? [
-                  ...new Set(
-                      resolved.clients
-                          .map((client) => client.note)
-                          .filter((note): note is string => note !== undefined),
-                  ),
-              ]
-            : [];
-
-    const noteLines = notes.map((note) => `Note: ${note}\n`).join('');
+    const noteLines = [...new Set(notes)].map((note) => `Note: ${note}\n`).join('');
 
     process.stdout.write(
         `${summaries.join('\n')}\n` +

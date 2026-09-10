@@ -49,9 +49,13 @@ Prefer a one-liner? Run `init` to write (or merge) the config into your client's
 npx @taiga-ui/mcp init --client claude # writes .mcp.json
 npx @taiga-ui/mcp init --client cursor # writes .cursor/mcp.json
 npx @taiga-ui/mcp init --client vscode # writes .vscode/mcp.json
+npx @taiga-ui/mcp init --client windsurf # writes ~/.codeium/windsurf/mcp_config.json (global only)
 npx @taiga-ui/mcp init --client opencode # writes opencode.json
 npx @taiga-ui/mcp init --client codex # writes .codex/config.toml
 ```
+
+Windsurf only reads a machine-global MCP config, so `--client windsurf` always writes
+`~/.codeium/windsurf/mcp_config.json` regardless of `--scope`.
 
 Target another docs version with `--version` — `next`, or a previous major like `v4` (defaults to `latest`):
 
