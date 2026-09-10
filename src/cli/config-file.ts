@@ -1,7 +1,7 @@
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dirname} from 'node:path';
 
-import {type ServerEntry} from './clients.js';
+import {type JsonEntry} from './clients.js';
 
 export type JsonObject = Record<string, unknown>;
 
@@ -31,7 +31,7 @@ export function mergeServerEntry(
     config: JsonObject,
     containerKey: string,
     serverName: string,
-    entry: ServerEntry,
+    entry: JsonEntry,
 ): {merged: JsonObject; existed: boolean} {
     const current = config[containerKey];
 
@@ -81,7 +81,7 @@ export async function writeConfigFile(
     await writeFile(filePath, serializeConfig(config), 'utf8');
 }
 
-function isFileNotFound(error: unknown): boolean {
+export function isFileNotFound(error: unknown): boolean {
     return (
         typeof error === 'object' &&
         error !== null &&

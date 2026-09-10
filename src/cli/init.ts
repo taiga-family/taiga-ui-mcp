@@ -1,7 +1,14 @@
 import {resolve} from 'node:path';
 
-import {CLIENTS, findClient, SERVER_NAME} from './clients.js';
+import {
+    CLIENTS,
+    findClient,
+    type JsonClientConfig,
+    SERVER_NAME,
+    type TomlClientConfig,
+} from './clients.js';
 import {mergeServerEntry, readConfigFile, writeConfigFile} from './config-file.js';
+import {readTextFile, upsertTomlTable, writeTextFile} from './toml-file.js';
 
 const DOCS_ORIGIN = 'https://taiga-ui.dev';
 const DEFAULT_VERSION = 'latest';
@@ -84,17 +91,11 @@ export async function runInit(argv: string[]): Promise<void> {
     }
 
     const filePath = resolve(process.cwd(), client.configPath);
-    const config = await readConfigFile(filePath);
-    const entry = client.buildEntry(sourceUrl);
 
-    const {merged, existed} = mergeServerEntry(
-        config,
-        client.containerKey,
-        SERVER_NAME,
-        entry,
-    );
-
-    await writeConfigFile(filePath, merged);
+    const existed =
+        client.kind === 'json'
+            ? await writeJsonClient(client, filePath, sourceUrl)
+            : await writeTomlClient(client, filePath, sourceUrl);
 
     const action = existed ? 'Updated' : 'Added';
 
@@ -103,4 +104,39 @@ export async function runInit(argv: string[]): Promise<void> {
             `Source: ${sourceUrl}\n` +
             `Next: restart ${client.label} to load the Taiga UI MCP server.\n`,
     );
+}
+
+async function writeJsonClient(
+    client: JsonClientConfig,
+    filePath: string,
+    sourceUrl: string,
+): Promise<boolean> {
+    const config = await readConfigFile(filePath);
+    const base = client.rootDefaults ? {...client.rootDefaults, ...config} : config;
+    const entry = client.buildEntry(sourceUrl);
+
+    const {merged, existed} = mergeServerEntry(
+        base,
+        client.containerKey,
+        SERVER_NAME,
+        entry,
+    );
+
+    await writeConfigFile(filePath, merged);
+
+    return existed;
+}
+
+async function writeTomlClient(
+    client: TomlClientConfig,
+    filePath: string,
+    sourceUrl: string,
+): Promise<boolean> {
+    const existing = await readTextFile(filePath);
+    const entry = client.buildEntry(sourceUrl);
+    const {content, existed} = upsertTomlTable(existing, client.tableName, entry);
+
+    await writeTextFile(filePath, content);
+
+    return existed;
 }

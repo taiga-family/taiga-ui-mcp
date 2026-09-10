@@ -28,6 +28,19 @@ function readConfig(path: string): McpConfig {
     return JSON.parse(readFileSync(path, 'utf8')) as McpConfig;
 }
 
+interface OpencodeConfig {
+    readonly $schema?: string;
+    readonly mcp?: Record<string, {type?: string; command?: string[]; enabled?: boolean}>;
+}
+
+function readOpencode(path: string): OpencodeConfig {
+    return JSON.parse(readFileSync(path, 'utf8')) as OpencodeConfig;
+}
+
+function readText(path: string): string {
+    return readFileSync(path, 'utf8');
+}
+
 describe('init command (built CLI)', () => {
     let dir = '';
 
@@ -144,6 +157,95 @@ describe('init command (built CLI)', () => {
 
         assert.equal(status, 1);
         assert.match(stderr, /Unknown version/);
+    });
+
+    it('scaffolds opencode.json with a local array entry and $schema', () => {
+        const {status} = runInit(dir, ['--client', 'opencode']);
+
+        assert.equal(status, 0);
+        assert.deepEqual(readOpencode(join(dir, 'opencode.json')), {
+            $schema: 'https://opencode.ai/config.json',
+            mcp: {
+                'taiga-ui': {
+                    type: 'local',
+                    command: [
+                        'npx',
+                        '-y',
+                        '@taiga-ui/mcp@latest',
+                        '--source-url=https://taiga-ui.dev/llms-full.txt',
+                    ],
+                    enabled: true,
+                },
+            },
+        });
+    });
+
+    it('preserves other opencode servers and does not overwrite an existing $schema', () => {
+        writeFileSync(
+            join(dir, 'opencode.json'),
+            JSON.stringify({$schema: 'custom', mcp: {other: {type: 'local'}}}),
+        );
+
+        runInit(dir, ['--client', 'opencode']);
+
+        const config = readOpencode(join(dir, 'opencode.json'));
+
+        assert.equal(config.$schema, 'custom');
+        assert.ok(config.mcp?.other);
+        assert.ok(config.mcp['taiga-ui']);
+    });
+
+    it('reflects --version next in the opencode command array', () => {
+        runInit(dir, ['--client', 'opencode', '--version', 'next']);
+
+        const command = readOpencode(join(dir, 'opencode.json')).mcp?.['taiga-ui']
+            ?.command;
+
+        assert.ok(command);
+        assert.equal(
+            command[command.length - 1],
+            '--source-url=https://taiga-ui.dev/next/llms-full.txt',
+        );
+    });
+
+    it('scaffolds .codex/config.toml with the table', () => {
+        const {status} = runInit(dir, ['--client', 'codex']);
+
+        assert.equal(status, 0);
+        assert.equal(
+            readText(join(dir, '.codex/config.toml')),
+            [
+                '[mcp_servers.taiga-ui]',
+                'command = "npx"',
+                'args = ["-y", "@taiga-ui/mcp@latest", "--source-url=https://taiga-ui.dev/llms-full.txt"]',
+                '',
+            ].join('\n'),
+        );
+    });
+
+    it('preserves other codex tables and never duplicates ours on re-run', () => {
+        mkdirSync(join(dir, '.codex'));
+        writeFileSync(
+            join(dir, '.codex/config.toml'),
+            '[mcp_servers.other]\ncommand = "y"\nargs = []\n',
+        );
+
+        runInit(dir, ['--client', 'codex']);
+        runInit(dir, ['--client', 'codex']);
+
+        const toml = readText(join(dir, '.codex/config.toml'));
+
+        assert.match(toml, /\[mcp_servers\.other\]/);
+        assert.equal(toml.match(/\[mcp_servers\.taiga-ui\]/g)?.length, 1);
+    });
+
+    it('reflects --version v4 in the codex args', () => {
+        runInit(dir, ['--client', 'codex', '--version', 'v4']);
+
+        assert.match(
+            readText(join(dir, '.codex/config.toml')),
+            /--source-url=https:\/\/taiga-ui\.dev\/v4\/llms-full\.txt/,
+        );
     });
 });
 

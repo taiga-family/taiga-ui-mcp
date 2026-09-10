@@ -49,6 +49,8 @@ Prefer a one-liner? Run `init` to write (or merge) the config into your client's
 npx @taiga-ui/mcp init --client claude # writes .mcp.json
 npx @taiga-ui/mcp init --client cursor # writes .cursor/mcp.json
 npx @taiga-ui/mcp init --client vscode # writes .vscode/mcp.json
+npx @taiga-ui/mcp init --client opencode # writes opencode.json
+npx @taiga-ui/mcp init --client codex # writes .codex/config.toml
 ```
 
 Target another docs version with `--version` — `next`, or a previous major like `v4` (defaults to `latest`):
