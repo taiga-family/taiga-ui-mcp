@@ -41,6 +41,18 @@ First, install the Taiga UI MCP server with your client.
 }
 ```
 
+#### Quick install
+
+Prefer a one-liner? Run `init` to write (or merge) the config into your client's project-local file:
+
+```bash
+npx @taiga-ui/mcp init --client claude # writes .mcp.json
+npx @taiga-ui/mcp init --client cursor # writes .cursor/mcp.json
+npx @taiga-ui/mcp init --client vscode # writes .vscode/mcp.json
+```
+
+Pass `--source-url=...` to pin a specific docs source (defaults to `https://taiga-ui.dev/llms-full.txt`).
+
 ### Tools
 
 <details>
