@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {describe, it} from 'node:test';
 
-import {buildTomlTable, upsertTomlTable} from '../src/cli/toml-file.js';
+import {buildTomlTable, removeTomlTable, upsertTomlTable} from '../src/cli/toml-file.js';
 
 const TABLE = 'mcp_servers.taiga-ui';
 
@@ -101,5 +101,71 @@ describe('upsertTomlTable', () => {
         assert.match(content, /command = "y"/);
         assert.doesNotMatch(content, /OLD/);
         assert.equal(content.match(/\[mcp_servers\.taiga-ui\]/g)?.length, 1);
+    });
+});
+
+describe('removeTomlTable', () => {
+    it('removes ours and keeps a preceding table, trimming its body', () => {
+        const existing = [
+            '[mcp_servers.other]',
+            'command = "y"',
+            'args = []',
+            '',
+            '[mcp_servers.taiga-ui]',
+            'command = "npx"',
+            'args = ["-y"]',
+            '',
+        ].join('\n');
+
+        const {content, removed} = removeTomlTable(existing, TABLE);
+
+        assert.equal(removed, true);
+        assert.equal(
+            content,
+            ['[mcp_servers.other]', 'command = "y"', 'args = []', ''].join('\n'),
+        );
+    });
+
+    it('removes ours when it comes first, keeping the following table', () => {
+        const existing = [
+            '[mcp_servers.taiga-ui]',
+            'command = "npx"',
+            'args = ["-y"]',
+            '',
+            '[mcp_servers.other]',
+            'command = "y"',
+            'args = []',
+            '',
+        ].join('\n');
+
+        const {content, removed} = removeTomlTable(existing, TABLE);
+
+        assert.equal(removed, true);
+        assert.equal(
+            content,
+            ['[mcp_servers.other]', 'command = "y"', 'args = []', ''].join('\n'),
+        );
+    });
+
+    it('empties the file when ours is the only table', () => {
+        const existing = [
+            '[mcp_servers.taiga-ui]',
+            'command = "npx"',
+            'args = ["-y"]',
+            '',
+        ].join('\n');
+
+        const {content, removed} = removeTomlTable(existing, TABLE);
+
+        assert.equal(removed, true);
+        assert.equal(content, '');
+    });
+
+    it('reports removed=false and leaves content untouched when absent', () => {
+        const existing = '[mcp_servers.other]\ncommand = "y"\nargs = []\n';
+        const {content, removed} = removeTomlTable(existing, TABLE);
+
+        assert.equal(removed, false);
+        assert.equal(content, existing);
     });
 });

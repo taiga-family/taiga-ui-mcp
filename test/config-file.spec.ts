@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import {describe, it} from 'node:test';
 
-import {mergeServerEntry, parseConfig, serializeConfig} from '../src/cli/config-file.js';
+import {
+    mergeServerEntry,
+    parseConfig,
+    removeServerEntry,
+    serializeConfig,
+} from '../src/cli/config-file.js';
 
 const ENTRY = {command: 'npx', args: ['-y']} as const;
 
@@ -66,6 +71,66 @@ describe('mergeServerEntry', () => {
         );
 
         assert.deepEqual(merged, {mcpServers: {'taiga-ui': ENTRY}});
+    });
+});
+
+describe('removeServerEntry', () => {
+    it('removes our entry and preserves siblings and top-level keys', () => {
+        const config = {
+            other: true,
+            mcpServers: {keep: {command: 'x', args: []}, 'taiga-ui': ENTRY},
+        };
+
+        const {config: next, removed} = removeServerEntry(
+            config,
+            'mcpServers',
+            'taiga-ui',
+        );
+
+        assert.equal(removed, true);
+        assert.deepEqual(next, {
+            other: true,
+            mcpServers: {keep: {command: 'x', args: []}},
+        });
+    });
+
+    it('reports removed=false when the entry is absent', () => {
+        const {config, removed} = removeServerEntry(
+            {mcpServers: {keep: {command: 'x', args: []}}},
+            'mcpServers',
+            'taiga-ui',
+        );
+
+        assert.equal(removed, false);
+        assert.deepEqual(config, {mcpServers: {keep: {command: 'x', args: []}}});
+    });
+
+    it('reports removed=false when the container is missing or not an object', () => {
+        assert.equal(removeServerEntry({}, 'mcpServers', 'taiga-ui').removed, false);
+        assert.equal(
+            removeServerEntry({mcpServers: 5}, 'mcpServers', 'taiga-ui').removed,
+            false,
+        );
+    });
+
+    it('keeps a now-empty container intact', () => {
+        const {config, removed} = removeServerEntry(
+            {mcpServers: {'taiga-ui': ENTRY}},
+            'mcpServers',
+            'taiga-ui',
+        );
+
+        assert.equal(removed, true);
+        assert.deepEqual(config, {mcpServers: {}});
+    });
+
+    it('does not mutate the input config', () => {
+        const config = {mcpServers: {'taiga-ui': ENTRY, keep: {command: 'x', args: []}}};
+
+        removeServerEntry(config, 'mcpServers', 'taiga-ui');
+        assert.deepEqual(config, {
+            mcpServers: {'taiga-ui': ENTRY, keep: {command: 'x', args: []}},
+        });
     });
 });
 

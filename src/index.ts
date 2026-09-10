@@ -17,6 +17,21 @@ async function main(): Promise<void> {
         return;
     }
 
+    if (process.argv[2] === 'remove') {
+        const {runRemove} = await import('./cli/remove.js');
+
+        try {
+            await runRemove(process.argv.slice(3));
+        } catch (error) {
+            process.stderr.write(
+                `remove failed: ${error instanceof Error ? error.message : String(error)}\n`,
+            );
+            process.exit(1);
+        }
+
+        return;
+    }
+
     const {start} = await import('./server/server.js');
 
     await start();

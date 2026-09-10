@@ -75,6 +75,18 @@ npx @taiga-ui/mcp init --client cursor --scope user # writes ~/.cursor/mcp.json
 
 Or just run `npx @taiga-ui/mcp init` with no flags to pick the client, docs version, and scope interactively.
 
+#### Removing the server
+
+`remove` is the inverse of `init` — it deletes only the `taiga-ui` entry from a client config, leaving every other
+server untouched. It accepts the same `--client` and `--scope` flags (and the same interactive pickers when omitted):
+
+```bash
+npx @taiga-ui/mcp remove --client cursor # strips taiga-ui from .cursor/mcp.json
+npx @taiga-ui/mcp remove --client codex --scope user # strips it from ~/.codex/config.toml
+```
+
+If the config or the entry is missing, `remove` reports it and exits successfully.
+
 ### Tools
 
 <details>

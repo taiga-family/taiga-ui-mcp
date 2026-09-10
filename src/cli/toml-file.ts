@@ -51,6 +51,35 @@ export function upsertTomlTable(
     return {content, existed: true};
 }
 
+export function removeTomlTable(
+    content: string,
+    tableName: string,
+): {content: string; removed: boolean} {
+    const header = `[${tableName}]`;
+    const lines = content.split('\n');
+    const headerIndex = lines.findIndex((line) => line.trim() === header);
+
+    if (headerIndex === -1) {
+        return {content, removed: false};
+    }
+
+    let endIndex = lines.length;
+
+    for (let index = headerIndex + 1; index < lines.length; index++) {
+        if (lines[index]?.trim().startsWith('[')) {
+            endIndex = index;
+            break;
+        }
+    }
+
+    const rebuilt = [...lines.slice(0, headerIndex), ...lines.slice(endIndex)].join('\n');
+
+    const normalized =
+        rebuilt === '' || rebuilt.endsWith('\n') ? rebuilt : `${rebuilt}\n`;
+
+    return {content: normalized, removed: true};
+}
+
 export async function readTextFile(filePath: string): Promise<string> {
     try {
         return await readFile(filePath, 'utf8');

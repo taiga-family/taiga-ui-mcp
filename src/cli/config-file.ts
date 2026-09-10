@@ -53,6 +53,37 @@ export function mergeServerEntry(
     return {merged, existed};
 }
 
+export function removeServerEntry(
+    config: JsonObject,
+    containerKey: string,
+    serverName: string,
+): {config: JsonObject; removed: boolean} {
+    const current = config[containerKey];
+
+    if (typeof current !== 'object' || current === null || Array.isArray(current)) {
+        return {config, removed: false};
+    }
+
+    const container = current as JsonObject;
+
+    if (!(serverName in container)) {
+        return {config, removed: false};
+    }
+
+    const nextContainer: JsonObject = {};
+
+    for (const [key, value] of Object.entries(container)) {
+        if (key !== serverName) {
+            nextContainer[key] = value;
+        }
+    }
+
+    return {
+        config: {...config, [containerKey]: nextContainer},
+        removed: true,
+    };
+}
+
 export function serializeConfig(config: JsonObject): string {
     return `${JSON.stringify(config, null, 2)}\n`;
 }
