@@ -1,6 +1,7 @@
 import {resolve} from 'node:path';
 
 import {
+    type ClientConfig,
     CLIENTS,
     findClient,
     type JsonClientConfig,
@@ -8,6 +9,7 @@ import {
     type TomlClientConfig,
 } from './clients.js';
 import {mergeServerEntry, readConfigFile, writeConfigFile} from './config-file.js';
+import {isInteractive, promptMenu, promptText} from './prompt.js';
 import {readTextFile, upsertTomlTable, writeTextFile} from './toml-file.js';
 
 const DOCS_ORIGIN = 'https://taiga-ui.dev';
@@ -60,6 +62,60 @@ function supportedClientsMessage(): string {
     return CLIENTS.map((client) => `  - ${client.id} (${client.label})`).join('\n');
 }
 
+// Missing --client: pick from a menu in a terminal, otherwise leave undefined for the error path.
+async function resolveClient(clientId?: string): Promise<ClientConfig | undefined> {
+    if (clientId) {
+        return findClient(clientId);
+    }
+
+    if (!isInteractive()) {
+        return undefined;
+    }
+
+    const index = await promptMenu(
+        'Which MCP client?',
+        CLIENTS.map((client) => client.label),
+    );
+
+    return CLIENTS[index];
+}
+
+// Missing --version (and no --source-url): ask in a terminal, otherwise default to latest.
+async function resolveVersion(
+    versionOption: string | undefined,
+    sourceUrlOverride: string | undefined,
+): Promise<string> {
+    if (sourceUrlOverride) {
+        return DEFAULT_VERSION;
+    }
+
+    if (versionOption) {
+        return versionOption;
+    }
+
+    if (!isInteractive()) {
+        return DEFAULT_VERSION;
+    }
+
+    const index = await promptMenu(
+        'Docs version',
+        [
+            'latest (current stable)',
+            'next (upcoming major)',
+            'other (a previous major, e.g. v4)',
+        ],
+        0,
+    );
+
+    if (index === 0) {
+        return 'latest';
+    }
+
+    return index === 1
+        ? 'next'
+        : (await promptText('Which major? (e.g. v4)')) || DEFAULT_VERSION;
+}
+
 export async function runInit(argv: string[]): Promise<void> {
     const {
         client: clientId,
@@ -67,7 +123,7 @@ export async function runInit(argv: string[]): Promise<void> {
         sourceUrl: sourceUrlOverride,
     } = parseArgs(argv);
 
-    const client = clientId ? findClient(clientId) : undefined;
+    const client = await resolveClient(clientId);
 
     if (!client) {
         const reason = clientId
@@ -80,7 +136,7 @@ export async function runInit(argv: string[]): Promise<void> {
         process.exit(1);
     }
 
-    const version = versionOption ?? DEFAULT_VERSION;
+    const version = await resolveVersion(versionOption, sourceUrlOverride);
     const sourceUrl = sourceUrlOverride ?? resolveSourceUrl(version);
 
     if (!sourceUrl) {

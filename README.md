@@ -62,6 +62,8 @@ npx @taiga-ui/mcp init --client cursor --version v4
 
 For a fully custom source, `--source-url=...` overrides `--version`.
 
+Or just run `npx @taiga-ui/mcp init` with no flags to pick the client and docs version interactively.
+
 ### Tools
 
 <details>
