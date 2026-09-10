@@ -8,16 +8,22 @@ import {describe, it} from 'node:test';
 import {fileURLToPath} from 'node:url';
 
 import {
-    parseMenuChoice,
     type PromptIo,
-    promptMenu,
+    promptMultiSelect,
+    promptSelect,
     promptText,
 } from '../src/cli/prompt.js';
 
 const CLI = fileURLToPath(new URL('../dist/index.js', import.meta.url));
+const ESC = String.fromCharCode(27);
+const UP = `${ESC}[A`;
+const DOWN = `${ESC}[B`;
+const ENTER = '\r';
+const SPACE = ' ';
+const ANSI = new RegExp(String.raw`${ESC}\[[0-9;?]*[a-z]`, 'gi');
 
-function fakeIo(line: string): {io: PromptIo; written(): string} {
-    const input = Readable.from(`${line}\n`);
+function keyIo(sequence: string): {io: PromptIo; written(): string} {
+    const input = Readable.from(sequence);
     const chunks: string[] = [];
 
     const output = new Writable({
@@ -31,52 +37,69 @@ function fakeIo(line: string): {io: PromptIo; written(): string} {
         },
     });
 
-    return {io: {input, output}, written: () => chunks.join('')};
+    return {io: {input, output}, written: () => chunks.join('').replaceAll(ANSI, '')};
 }
 
-describe('parseMenuChoice', () => {
-    it('maps a valid number to a 0-based index', () => {
-        assert.equal(parseMenuChoice('1', 3), 0);
-        assert.equal(parseMenuChoice('3', 3), 2);
+describe('promptSelect (arrow keys over injected streams)', () => {
+    it('moves down and selects with enter', {timeout: 5000}, async () => {
+        const {io, written} = keyIo(`${DOWN}${DOWN}${ENTER}`);
+
+        assert.equal(await promptSelect('Pick', ['a', 'b', 'c'], 0, io), 2);
+
+        const text = written();
+
+        assert.ok(text.includes('a') && text.includes('b') && text.includes('c'));
     });
 
-    it('returns the default on empty input', () => {
-        assert.equal(parseMenuChoice('', 3, 0), 0);
-        assert.equal(parseMenuChoice('  ', 3, 1), 1);
+    it('wraps around when moving up from the first item', {timeout: 5000}, async () => {
+        const {io} = keyIo(`${UP}${ENTER}`);
+
+        assert.equal(await promptSelect('Pick', ['a', 'b', 'c'], 0, io), 2);
     });
 
-    it('returns null for empty input without a default', () => {
-        assert.equal(parseMenuChoice('', 3), null);
-    });
+    it('honors the initial index', {timeout: 5000}, async () => {
+        const {io} = keyIo(ENTER);
 
-    it('returns null for out-of-range or non-numeric input', () => {
-        assert.equal(parseMenuChoice('0', 3), null);
-        assert.equal(parseMenuChoice('4', 3), null);
-        assert.equal(parseMenuChoice('x', 3), null);
-        assert.equal(parseMenuChoice('1.5', 3), null);
+        assert.equal(await promptSelect('Pick', ['a', 'b', 'c'], 1, io), 1);
     });
 });
 
-describe('promptMenu (real readline over injected streams)', () => {
-    it('resolves to the selected index and renders the menu', async () => {
-        const {io, written} = fakeIo('2');
+describe('promptMultiSelect (space toggles, enter confirms)', () => {
+    it('returns every toggled index in order', {timeout: 5000}, async () => {
+        const {io} = keyIo(`${SPACE}${DOWN}${DOWN}${SPACE}${ENTER}`);
 
-        assert.equal(await promptMenu('Pick', ['a', 'b', 'c'], undefined, io), 1);
-        assert.match(written(), /1\) a[\s\S]*2\) b[\s\S]*3\) c/);
+        assert.deepEqual(await promptMultiSelect('Pick', ['a', 'b', 'c'], io), [0, 2]);
     });
 
-    it('returns the default index on empty input', async () => {
-        const {io} = fakeIo('');
+    it(
+        'falls back to the highlighted row when nothing is toggled',
+        {timeout: 5000},
+        async () => {
+            const {io} = keyIo(`${DOWN}${ENTER}`);
 
-        assert.equal(await promptMenu('Pick', ['a', 'b'], 0, io), 0);
+            assert.deepEqual(await promptMultiSelect('Pick', ['a', 'b', 'c'], io), [1]);
+        },
+    );
+
+    it('renders a checkbox for each row', {timeout: 5000}, async () => {
+        const {io, written} = keyIo(ENTER);
+
+        await promptMultiSelect('Pick', ['a', 'b'], io);
+        assert.ok(written().includes('[ ] a'));
     });
 });
 
 describe('promptText (real readline over injected streams)', () => {
-    it('reads and trims a line', async () => {
-        const {io} = fakeIo('  v4  ');
+    it('reads and trims a line', {timeout: 5000}, async () => {
+        const input = Readable.from('  v4  \n');
 
-        assert.equal(await promptText('Major?', io), 'v4');
+        const output = new Writable({
+            write(_chunk, _encoding, callback): void {
+                callback();
+            },
+        });
+
+        assert.equal(await promptText('Major?', {input, output}), 'v4');
     });
 });
 

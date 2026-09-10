@@ -9,20 +9,35 @@ import {
     type TomlClientConfig,
 } from './clients.js';
 import {mergeServerEntry, readConfigFile, writeConfigFile} from './config-file.js';
-import {isInteractive, promptMenu, promptText} from './prompt.js';
+import {isInteractive, promptMultiSelect, promptSelect, promptText} from './prompt.js';
 import {readTextFile, upsertTomlTable, writeTextFile} from './toml-file.js';
 
 const DOCS_ORIGIN = 'https://taiga-ui.dev';
 const DEFAULT_VERSION = 'latest';
 
 interface InitOptions {
-    readonly client?: string;
+    readonly clients: readonly string[];
     readonly version?: string;
     readonly sourceUrl?: string;
 }
 
+interface ResolvedClients {
+    readonly clients: readonly ClientConfig[];
+    readonly unknown: readonly string[];
+}
+
+function collectClients(target: string[], value: string | undefined): void {
+    for (const id of value?.split(',') ?? []) {
+        const trimmed = id.trim();
+
+        if (trimmed) {
+            target.push(trimmed);
+        }
+    }
+}
+
 function parseArgs(argv: readonly string[]): InitOptions {
-    let client: string | undefined;
+    const clients: string[] = [];
     let version: string | undefined;
     let sourceUrl: string | undefined;
 
@@ -30,9 +45,9 @@ function parseArgs(argv: readonly string[]): InitOptions {
         const arg = argv[index];
 
         if (arg === '--client') {
-            client = argv[++index];
+            collectClients(clients, argv[++index]);
         } else if (arg?.startsWith('--client=')) {
-            client = arg.slice('--client='.length);
+            collectClients(clients, arg.slice('--client='.length));
         } else if (arg === '--version') {
             version = argv[++index];
         } else if (arg?.startsWith('--version=')) {
@@ -44,7 +59,7 @@ function parseArgs(argv: readonly string[]): InitOptions {
         }
     }
 
-    return {client, version, sourceUrl};
+    return {clients, version, sourceUrl};
 }
 
 // latest -> site root, next / vN -> a versioned docs path; unknown -> undefined.
@@ -63,21 +78,41 @@ function supportedClientsMessage(): string {
 }
 
 // Missing --client: pick from a menu in a terminal, otherwise leave undefined for the error path.
-async function resolveClient(clientId?: string): Promise<ClientConfig | undefined> {
-    if (clientId) {
-        return findClient(clientId);
+async function resolveClients(
+    ids: readonly string[],
+): Promise<ResolvedClients | undefined> {
+    if (ids.length > 0) {
+        const clients: ClientConfig[] = [];
+        const unknown: string[] = [];
+
+        for (const id of ids) {
+            const client = findClient(id);
+
+            if (client) {
+                clients.push(client);
+            } else {
+                unknown.push(id);
+            }
+        }
+
+        return {clients, unknown};
     }
 
     if (!isInteractive()) {
         return undefined;
     }
 
-    const index = await promptMenu(
-        'Which MCP client?',
+    const indices = await promptMultiSelect(
+        'Which MCP client(s)?',
         CLIENTS.map((client) => client.label),
     );
 
-    return CLIENTS[index];
+    return {
+        clients: indices
+            .map((index) => CLIENTS[index])
+            .filter((client): client is ClientConfig => client !== undefined),
+        unknown: [],
+    };
 }
 
 // Missing --version (and no --source-url): ask in a terminal, otherwise default to latest.
@@ -97,7 +132,7 @@ async function resolveVersion(
         return DEFAULT_VERSION;
     }
 
-    const index = await promptMenu(
+    const index = await promptSelect(
         'Docs version',
         [
             'latest (current stable)',
@@ -116,49 +151,70 @@ async function resolveVersion(
         : (await promptText('Which major? (e.g. v4)')) || DEFAULT_VERSION;
 }
 
+function fail(message: string): never {
+    process.stderr.write(message);
+    process.exit(1);
+}
+
 export async function runInit(argv: string[]): Promise<void> {
     const {
-        client: clientId,
+        clients: clientIds,
         version: versionOption,
         sourceUrl: sourceUrlOverride,
     } = parseArgs(argv);
 
-    const client = await resolveClient(clientId);
+    const resolved = await resolveClients(clientIds);
 
-    if (!client) {
-        const reason = clientId
-            ? `Unknown client "${clientId}".`
-            : 'Missing --client option.';
-
-        process.stderr.write(
-            `${reason}\nSupported clients:\n${supportedClientsMessage()}\n`,
+    if (!resolved) {
+        fail(
+            `Missing --client option.\nSupported clients:\n${supportedClientsMessage()}\n`,
         );
-        process.exit(1);
+    }
+
+    if (resolved.unknown.length > 0) {
+        fail(
+            `Unknown client "${resolved.unknown.join('", "')}".\n` +
+                `Supported clients:\n${supportedClientsMessage()}\n`,
+        );
+    }
+
+    if (resolved.clients.length === 0) {
+        fail(
+            `Missing --client option.\nSupported clients:\n${supportedClientsMessage()}\n`,
+        );
     }
 
     const version = await resolveVersion(versionOption, sourceUrlOverride);
     const sourceUrl = sourceUrlOverride ?? resolveSourceUrl(version);
 
     if (!sourceUrl) {
-        process.stderr.write(
+        fail(
             `Unknown version "${version}". Use "latest", "next", or a major like "v4".\n`,
         );
-        process.exit(1);
     }
 
-    const filePath = resolve(process.cwd(), client.configPath);
+    const summaries: string[] = [];
 
-    const existed =
-        client.kind === 'json'
-            ? await writeJsonClient(client, filePath, sourceUrl)
-            : await writeTomlClient(client, filePath, sourceUrl);
+    for (const client of resolved.clients) {
+        const filePath = resolve(process.cwd(), client.configPath);
 
-    const action = existed ? 'Updated' : 'Added';
+        const existed =
+            client.kind === 'json'
+                ? await writeJsonClient(client, filePath, sourceUrl)
+                : await writeTomlClient(client, filePath, sourceUrl);
+
+        summaries.push(
+            `${existed ? 'Updated' : 'Added'} "${SERVER_NAME}" MCP server in ${client.configPath} (${client.label}).`,
+        );
+    }
+
+    const restart =
+        resolved.clients.length === 1 ? resolved.clients[0]?.label : 'your clients';
 
     process.stdout.write(
-        `${action} "${SERVER_NAME}" MCP server in ${client.configPath} (${client.label}).\n` +
+        `${summaries.join('\n')}\n` +
             `Source: ${sourceUrl}\n` +
-            `Next: restart ${client.label} to load the Taiga UI MCP server.\n`,
+            `Next: restart ${restart} to load the Taiga UI MCP server.\n`,
     );
 }
 

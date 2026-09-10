@@ -78,6 +78,17 @@ describe('init command (built CLI)', () => {
         assert.equal(config.servers?.['taiga-ui']?.type, 'stdio');
     });
 
+    it('scaffolds several clients from a comma-separated --client', () => {
+        const {status} = runInit(dir, ['--client', 'cursor,codex']);
+
+        assert.equal(status, 0);
+        assert.ok(readConfig(join(dir, '.cursor/mcp.json')).mcpServers?.['taiga-ui']);
+        assert.match(
+            readText(join(dir, '.codex/config.toml')),
+            /\[mcp_servers\.taiga-ui\]/,
+        );
+    });
+
     it('preserves an existing unrelated server and honors --source-url', () => {
         mkdirSync(join(dir, '.cursor'));
         writeFileSync(
