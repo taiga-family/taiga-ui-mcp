@@ -9,7 +9,7 @@ import {
     type TomlClientConfig,
 } from './clients.js';
 import {mergeServerEntry, readConfigFile, writeConfigFile} from './config-file.js';
-import {isInteractive, promptMultiSelect, promptSelect, promptText} from './prompt.js';
+import {isInteractive, promptMultiSelect, promptSelect} from './prompt.js';
 import {displayPath, resolveConfigPath, type Scope} from './scope.js';
 import {readTextFile, upsertTomlTable, writeTextFile} from './toml-file.js';
 
@@ -140,23 +140,9 @@ async function resolveVersion(
         return DEFAULT_VERSION;
     }
 
-    const index = await promptSelect(
-        'Docs version',
-        [
-            'latest (current stable)',
-            'next (upcoming major)',
-            'other (a previous major, e.g. v4)',
-        ],
-        0,
-    );
+    const index = await promptSelect('Docs version', ['v5 (latest)', 'v4'], 0);
 
-    if (index === 0) {
-        return 'latest';
-    }
-
-    return index === 1
-        ? 'next'
-        : (await promptText('Which major? (e.g. v4)')) || DEFAULT_VERSION;
+    return index === 0 ? 'latest' : 'v4';
 }
 
 // Missing --scope: ask in a terminal, otherwise default to project.
