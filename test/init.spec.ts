@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
-import {mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {
+    existsSync,
+    mkdirSync,
+    mkdtempSync,
+    readFileSync,
+    rmSync,
+    writeFileSync,
+} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {afterEach, beforeEach, describe, it} from 'node:test';
@@ -266,6 +273,81 @@ describe('init command (built CLI)', () => {
             readText(join(dir, '.codex/config.toml')),
             /--source-url=https:\/\/taiga-ui\.dev\/v4\/llms-full\.txt/,
         );
+    });
+});
+
+describe('init command --scope (built CLI)', () => {
+    let dir = '';
+    let home = '';
+
+    beforeEach(() => {
+        dir = mkdtempSync(join(tmpdir(), 'tui-mcp-cwd-'));
+        home = mkdtempSync(join(tmpdir(), 'tui-mcp-home-'));
+    });
+
+    afterEach(() => {
+        rmSync(dir, {recursive: true, force: true});
+        rmSync(home, {recursive: true, force: true});
+    });
+
+    function run(args: readonly string[]): {
+        status: number | null;
+        stderr: string;
+        stdout: string;
+    } {
+        const result = spawnSync('node', [CLI, 'init', ...args], {
+            cwd: dir,
+            encoding: 'utf8',
+            env: {...process.env, HOME: home, USERPROFILE: home},
+        });
+
+        return {status: result.status, stderr: result.stderr, stdout: result.stdout};
+    }
+
+    it('writes a user-scope cursor config under HOME and not cwd', () => {
+        const {status} = run(['--client', 'cursor', '--scope', 'user']);
+
+        assert.equal(status, 0);
+        assert.ok(readConfig(join(home, '.cursor/mcp.json')).mcpServers?.['taiga-ui']);
+        assert.equal(existsSync(join(dir, '.cursor/mcp.json')), false);
+    });
+
+    it('accepts the -s short flag for user scope', () => {
+        const {status} = run(['--client', 'cursor', '-s', 'user']);
+
+        assert.equal(status, 0);
+        assert.ok(readConfig(join(home, '.cursor/mcp.json')).mcpServers?.['taiga-ui']);
+    });
+
+    it('writes a project-scope cursor config under cwd', () => {
+        const {status} = run(['--client', 'cursor', '--scope', 'project']);
+
+        assert.equal(status, 0);
+        assert.ok(readConfig(join(dir, '.cursor/mcp.json')).mcpServers?.['taiga-ui']);
+        assert.equal(existsSync(join(home, '.cursor/mcp.json')), false);
+    });
+
+    it('defaults to project scope when --scope is omitted', () => {
+        const {status} = run(['--client', 'cursor']);
+
+        assert.equal(status, 0);
+        assert.ok(readConfig(join(dir, '.cursor/mcp.json')).mcpServers?.['taiga-ui']);
+        assert.equal(existsSync(join(home, '.cursor/mcp.json')), false);
+    });
+
+    it('exits non-zero for an unknown scope', () => {
+        const {status, stderr} = run(['--client', 'cursor', '--scope', 'bogus']);
+
+        assert.equal(status, 1);
+        assert.match(stderr, /Unknown scope/);
+    });
+
+    it('prints the codex trust note for project scope but not user scope', () => {
+        const project = run(['--client', 'codex', '--scope', 'project']);
+        const user = run(['--client', 'codex', '--scope', 'user']);
+
+        assert.match(project.stdout, /trust this folder in Codex/);
+        assert.doesNotMatch(user.stdout, /trust this folder in Codex/);
     });
 });
 

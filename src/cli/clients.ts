@@ -5,11 +5,16 @@ export interface TomlEntry {
     readonly args: readonly string[];
 }
 
+export type UserPath =
+    | string
+    | {readonly darwin: string; readonly win32: string; readonly linux: string};
+
 export interface JsonClientConfig {
     readonly kind: 'json';
     readonly id: string;
     readonly label: string;
     readonly configPath: string;
+    readonly userPath: UserPath;
     readonly containerKey: string;
     readonly rootDefaults?: Record<string, unknown>;
     readonly note?: string;
@@ -21,6 +26,7 @@ export interface TomlClientConfig {
     readonly id: string;
     readonly label: string;
     readonly configPath: string;
+    readonly userPath: UserPath;
     readonly tableName: string;
     readonly note?: string;
     buildEntry(sourceUrl: string): TomlEntry;
@@ -65,6 +71,7 @@ export const CLIENTS: readonly ClientConfig[] = [
         id: 'claude',
         label: 'Claude Code',
         configPath: '.mcp.json',
+        userPath: '.claude.json',
         containerKey: 'mcpServers',
         buildEntry: buildStandardEntry,
     },
@@ -73,6 +80,7 @@ export const CLIENTS: readonly ClientConfig[] = [
         id: 'cursor',
         label: 'Cursor',
         configPath: '.cursor/mcp.json',
+        userPath: '.cursor/mcp.json',
         containerKey: 'mcpServers',
         buildEntry: buildStandardEntry,
     },
@@ -81,6 +89,11 @@ export const CLIENTS: readonly ClientConfig[] = [
         id: 'vscode',
         label: 'VS Code',
         configPath: '.vscode/mcp.json',
+        userPath: {
+            darwin: 'Library/Application Support/Code/User/mcp.json',
+            win32: 'AppData/Roaming/Code/User/mcp.json',
+            linux: '.config/Code/User/mcp.json',
+        },
         containerKey: 'servers',
         buildEntry: buildStdioEntry,
     },
@@ -89,6 +102,7 @@ export const CLIENTS: readonly ClientConfig[] = [
         id: 'opencode',
         label: 'OpenCode',
         configPath: 'opencode.json',
+        userPath: '.config/opencode/opencode.json',
         containerKey: 'mcp',
         rootDefaults: {$schema: OPENCODE_SCHEMA},
         buildEntry: buildOpencodeEntry,
@@ -98,6 +112,7 @@ export const CLIENTS: readonly ClientConfig[] = [
         id: 'codex',
         label: 'Codex',
         configPath: '.codex/config.toml',
+        userPath: '.codex/config.toml',
         tableName: 'mcp_servers.taiga-ui',
         note: 'Codex reads a project .codex/config.toml only in a trusted workspace — trust this folder in Codex, or add the server to ~/.codex/config.toml instead.',
         buildEntry: buildCommandEntry,

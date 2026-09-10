@@ -62,7 +62,14 @@ npx @taiga-ui/mcp init --client cursor --version v4
 
 For a fully custom source, `--source-url=...` overrides `--version`.
 
-Or just run `npx @taiga-ui/mcp init` with no flags to pick the client and docs version interactively.
+By default `init` writes a project-local config you can commit to the repo. Pass `--scope user` (short `-s`) to write
+your machine-global config instead — e.g. `~/.cursor/mcp.json` (defaults to `project`):
+
+```bash
+npx @taiga-ui/mcp init --client cursor --scope user # writes ~/.cursor/mcp.json
+```
+
+Or just run `npx @taiga-ui/mcp init` with no flags to pick the client, docs version, and scope interactively.
 
 ### Tools
 

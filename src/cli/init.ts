@@ -1,4 +1,4 @@
-import {resolve} from 'node:path';
+import {homedir} from 'node:os';
 
 import {
     type ClientConfig,
@@ -10,6 +10,7 @@ import {
 } from './clients.js';
 import {mergeServerEntry, readConfigFile, writeConfigFile} from './config-file.js';
 import {isInteractive, promptMultiSelect, promptSelect, promptText} from './prompt.js';
+import {displayPath, resolveConfigPath, type Scope} from './scope.js';
 import {readTextFile, upsertTomlTable, writeTextFile} from './toml-file.js';
 
 const DOCS_ORIGIN = 'https://taiga-ui.dev';
@@ -19,6 +20,7 @@ interface InitOptions {
     readonly clients: readonly string[];
     readonly version?: string;
     readonly sourceUrl?: string;
+    readonly scope?: string;
 }
 
 interface ResolvedClients {
@@ -40,6 +42,7 @@ function parseArgs(argv: readonly string[]): InitOptions {
     const clients: string[] = [];
     let version: string | undefined;
     let sourceUrl: string | undefined;
+    let scope: string | undefined;
 
     for (let index = 0; index < argv.length; index++) {
         const arg = argv[index];
@@ -56,10 +59,14 @@ function parseArgs(argv: readonly string[]): InitOptions {
             sourceUrl = argv[++index];
         } else if (arg?.startsWith('--source-url=')) {
             sourceUrl = arg.slice('--source-url='.length);
+        } else if (arg === '--scope' || arg === '-s') {
+            scope = argv[++index];
+        } else if (arg?.startsWith('--scope=')) {
+            scope = arg.slice('--scope='.length);
         }
     }
 
-    return {clients, version, sourceUrl};
+    return {clients, version, sourceUrl, scope};
 }
 
 // latest -> site root, next / vN -> a versioned docs path; unknown -> undefined.
@@ -151,6 +158,29 @@ async function resolveVersion(
         : (await promptText('Which major? (e.g. v4)')) || DEFAULT_VERSION;
 }
 
+// Missing --scope: ask in a terminal, otherwise default to project.
+async function resolveScope(scopeOption: string | undefined): Promise<Scope> {
+    if (scopeOption !== undefined) {
+        if (scopeOption === 'project' || scopeOption === 'user') {
+            return scopeOption;
+        }
+
+        fail(`Unknown scope "${scopeOption}". Use "project" or "user".\n`);
+    }
+
+    if (!isInteractive()) {
+        return 'project';
+    }
+
+    const index = await promptSelect(
+        'Where should it live?',
+        ['project — this repo (committable)', 'user — global for your machine'],
+        0,
+    );
+
+    return index === 1 ? 'user' : 'project';
+}
+
 function fail(message: string): never {
     process.stderr.write(message);
     process.exit(1);
@@ -161,6 +191,7 @@ export async function runInit(argv: string[]): Promise<void> {
         clients: clientIds,
         version: versionOption,
         sourceUrl: sourceUrlOverride,
+        scope: scopeOption,
     } = parseArgs(argv);
 
     const resolved = await resolveClients(clientIds);
@@ -193,10 +224,12 @@ export async function runInit(argv: string[]): Promise<void> {
         );
     }
 
+    const scope = await resolveScope(scopeOption);
+    const env = {cwd: process.cwd(), home: homedir(), platform: process.platform};
     const summaries: string[] = [];
 
     for (const client of resolved.clients) {
-        const filePath = resolve(process.cwd(), client.configPath);
+        const filePath = resolveConfigPath(client, scope, env);
 
         const existed =
             client.kind === 'json'
@@ -204,20 +237,23 @@ export async function runInit(argv: string[]): Promise<void> {
                 : await writeTomlClient(client, filePath, sourceUrl);
 
         summaries.push(
-            `${existed ? 'Updated' : 'Added'} "${SERVER_NAME}" MCP server in ${client.configPath} (${client.label}).`,
+            `${existed ? 'Updated' : 'Added'} "${SERVER_NAME}" MCP server in ${displayPath(client, scope, env)} (${client.label}).`,
         );
     }
 
     const restart =
         resolved.clients.length === 1 ? resolved.clients[0]?.label : 'your clients';
 
-    const notes = [
-        ...new Set(
-            resolved.clients
-                .map((client) => client.note)
-                .filter((note): note is string => note !== undefined),
-        ),
-    ];
+    const notes =
+        scope === 'project'
+            ? [
+                  ...new Set(
+                      resolved.clients
+                          .map((client) => client.note)
+                          .filter((note): note is string => note !== undefined),
+                  ),
+              ]
+            : [];
 
     const noteLines = notes.map((note) => `Note: ${note}\n`).join('');
 
