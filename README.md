@@ -25,25 +25,16 @@ development workflow.
 
 First, install the Taiga UI MCP server with your client.
 
-**Standard config** works in most of the tools:
-
-```json
-{
-  "mcpServers": {
-    "taiga-ui": {
-      "command": "npx",
-      "args": [
-        "@taiga-ui/mcp@latest",
-        "--source-url=https://taiga-ui.dev/llms-full.txt" // or the /v4 version, if you want
-      ]
-    }
-  }
-}
-```
-
 #### Quick install
 
-Prefer a one-liner? Run `init` to write (or merge) the config into your client's project-local file:
+The fastest way is the interactive `init` command. Run it with no flags to pick the client, the docs version
+(`v5 (latest)` or `v4`), and the scope:
+
+```bash
+npx @taiga-ui/mcp init
+```
+
+Prefer a one-liner? `init` writes (or merges) the config into your client's project-local file:
 
 ```bash
 npx @taiga-ui/mcp init --client claude # writes .mcp.json
@@ -75,8 +66,23 @@ npx @taiga-ui/mcp init --client cursor --scope user # writes ~/.cursor/mcp.json
 npx @taiga-ui/mcp init --client cursor --scope project,user # writes both .cursor/mcp.json and ~/.cursor/mcp.json
 ```
 
-Or run `npx @taiga-ui/mcp init` with no flags to pick everything interactively — the client, the docs version
-(`v5 (latest)` or `v4`), and the scope.
+#### Standard config
+
+Prefer manual setup? The standard config works in most of the tools:
+
+```json
+{
+  "mcpServers": {
+    "taiga-ui": {
+      "command": "npx",
+      "args": [
+        "@taiga-ui/mcp@latest",
+        "--source-url=https://taiga-ui.dev/llms-full.txt" // or the /v4 version, if you want
+      ]
+    }
+  }
+}
+```
 
 #### Removing the server
 
