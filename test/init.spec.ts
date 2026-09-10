@@ -6,6 +6,8 @@ import {join} from 'node:path';
 import {afterEach, beforeEach, describe, it} from 'node:test';
 import {fileURLToPath} from 'node:url';
 
+import {resolveSourceUrl} from '../src/cli/init.js';
+
 const CLI = fileURLToPath(new URL('../dist/index.js', import.meta.url));
 
 interface McpConfig {
@@ -99,5 +101,64 @@ describe('init command (built CLI)', () => {
 
         assert.notEqual(status, 0);
         assert.equal(readFileSync(join(dir, '.vscode/mcp.json'), 'utf8'), 'not json{');
+    });
+
+    it('resolves --version next to the next docs url', () => {
+        runInit(dir, ['--client', 'cursor', '--version', 'next']);
+
+        const taiga = readConfig(join(dir, '.cursor/mcp.json')).mcpServers?.['taiga-ui'];
+
+        assert.ok(taiga);
+        assert.equal(
+            taiga.args[taiga.args.length - 1],
+            '--source-url=https://taiga-ui.dev/next/llms-full.txt',
+        );
+    });
+
+    it('lets --source-url override --version', () => {
+        runInit(dir, [
+            '--client',
+            'cursor',
+            '--version',
+            'next',
+            '--source-url=https://example.com/x',
+        ]);
+
+        const taiga = readConfig(join(dir, '.cursor/mcp.json')).mcpServers?.['taiga-ui'];
+
+        assert.ok(taiga);
+        assert.equal(
+            taiga.args[taiga.args.length - 1],
+            '--source-url=https://example.com/x',
+        );
+    });
+
+    it('exits non-zero for an unknown version', () => {
+        const {status, stderr} = runInit(dir, [
+            '--client',
+            'cursor',
+            '--version',
+            'bogus',
+        ]);
+
+        assert.equal(status, 1);
+        assert.match(stderr, /Unknown version/);
+    });
+});
+
+describe('resolveSourceUrl', () => {
+    it('maps latest to the site root', () => {
+        assert.equal(resolveSourceUrl('latest'), 'https://taiga-ui.dev/llms-full.txt');
+    });
+
+    it('maps next and majors to their versioned path', () => {
+        assert.equal(resolveSourceUrl('next'), 'https://taiga-ui.dev/next/llms-full.txt');
+        assert.equal(resolveSourceUrl('v4'), 'https://taiga-ui.dev/v4/llms-full.txt');
+        assert.equal(resolveSourceUrl('v12'), 'https://taiga-ui.dev/v12/llms-full.txt');
+    });
+
+    it('returns undefined for an unknown version', () => {
+        assert.equal(resolveSourceUrl('bogus'), undefined);
+        assert.equal(resolveSourceUrl('v'), undefined);
     });
 });

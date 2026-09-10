@@ -51,7 +51,14 @@ npx @taiga-ui/mcp init --client cursor # writes .cursor/mcp.json
 npx @taiga-ui/mcp init --client vscode # writes .vscode/mcp.json
 ```
 
-Pass `--source-url=...` to pin a specific docs source (defaults to `https://taiga-ui.dev/llms-full.txt`).
+Target another docs version with `--version` — `next`, or a previous major like `v4` (defaults to `latest`):
+
+```bash
+npx @taiga-ui/mcp init --client cursor --version next
+npx @taiga-ui/mcp init --client cursor --version v4
+```
+
+For a fully custom source, `--source-url=...` overrides `--version`.
 
 ### Tools
 
