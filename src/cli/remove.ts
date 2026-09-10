@@ -13,7 +13,7 @@ import {displayPath, resolveConfigPath, type ScopeEnv} from './scope.js';
 import {readTextFile, removeTomlTable, writeTextFile} from './toml-file.js';
 
 export async function runRemove(argv: string[]): Promise<void> {
-    const {clients: clientIds, scope: scopeOption} = parseArgs(argv);
+    const {clients: clientIds, scopes: scopeOptions} = parseArgs(argv);
     const resolved = await resolveClients(clientIds, 'Remove from which client(s)?');
 
     if (!resolved) {
@@ -35,7 +35,7 @@ export async function runRemove(argv: string[]): Promise<void> {
         );
     }
 
-    const scope = await resolveScope(scopeOption, 'Which scope to remove from?', [
+    const scopes = await resolveScope(scopeOptions, 'Which scope to remove from?', [
         'project — this repo',
         'user — global for your machine',
     ]);
@@ -49,20 +49,25 @@ export async function runRemove(argv: string[]): Promise<void> {
     const lines: string[] = [];
 
     for (const client of resolved.clients) {
-        const effectiveScope = client.userScopeOnly ? 'user' : scope;
-        const filePath = resolveConfigPath(client, effectiveScope, env);
-        const where = `${displayPath(client, effectiveScope, env)} (${client.label})`;
+        const effective = [
+            ...new Set(scopes.map((scope) => (client.userScopeOnly ? 'user' : scope))),
+        ];
 
-        const removed =
-            client.kind === 'json'
-                ? await removeFromJsonClient(client, filePath)
-                : await removeFromTomlClient(client, filePath);
+        for (const effectiveScope of effective) {
+            const filePath = resolveConfigPath(client, effectiveScope, env);
+            const where = `${displayPath(client, effectiveScope, env)} (${client.label})`;
 
-        lines.push(
-            removed
-                ? `Removed "${SERVER_NAME}" from ${where}.`
-                : `No "${SERVER_NAME}" server in ${where}.`,
-        );
+            const removed =
+                client.kind === 'json'
+                    ? await removeFromJsonClient(client, filePath)
+                    : await removeFromTomlClient(client, filePath);
+
+            lines.push(
+                removed
+                    ? `Removed "${SERVER_NAME}" from ${where}.`
+                    : `No "${SERVER_NAME}" server in ${where}.`,
+            );
+        }
     }
 
     process.stdout.write(`${lines.join('\n')}\n`);

@@ -133,6 +133,26 @@ describe('remove command --scope (built CLI)', () => {
         );
     });
 
+    it('removes both project and user cursor configs for --scope project,user', () => {
+        run(dir, 'init', ['--client', 'cursor', '--scope', 'project,user'], home);
+        const removed = run(
+            dir,
+            'remove',
+            ['--client', 'cursor', '--scope', 'project,user'],
+            home,
+        );
+
+        assert.equal(removed.status, 0);
+        assert.equal(
+            readConfig(join(dir, '.cursor/mcp.json')).mcpServers?.['taiga-ui'],
+            undefined,
+        );
+        assert.equal(
+            readConfig(join(home, '.cursor/mcp.json')).mcpServers?.['taiga-ui'],
+            undefined,
+        );
+    });
+
     it('removes windsurf from the global config even for project scope', () => {
         run(dir, 'init', ['--client', 'windsurf'], home);
         const removed = run(dir, 'remove', ['--client', 'windsurf'], home);

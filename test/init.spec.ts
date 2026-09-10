@@ -375,6 +375,46 @@ describe('init command --scope (built CLI)', () => {
         assert.match(stdout, /global config/);
         assert.match(stdout, /~\/\.codeium\/windsurf\/mcp_config\.json/);
     });
+
+    it('writes both project and user cursor configs for --scope project,user', () => {
+        const {status} = run(['--client', 'cursor', '--scope', 'project,user']);
+
+        assert.equal(status, 0);
+        assert.ok(readConfig(join(dir, '.cursor/mcp.json')).mcpServers?.['taiga-ui']);
+        assert.ok(readConfig(join(home, '.cursor/mcp.json')).mcpServers?.['taiga-ui']);
+    });
+
+    it('dedupes windsurf to a single global write for --scope project,user', () => {
+        const {status, stdout} = run(['--client', 'windsurf', '--scope', 'project,user']);
+
+        assert.equal(status, 0);
+        assert.ok(
+            readConfig(join(home, '.codeium/windsurf/mcp_config.json')).mcpServers?.[
+                'taiga-ui'
+            ],
+        );
+        assert.equal(existsSync(join(dir, '.codeium/windsurf/mcp_config.json')), false);
+
+        const summaryLines = stdout.match(
+            /MCP server in ~\/\.codeium\/windsurf\/mcp_config\.json \(Windsurf\)/g,
+        );
+
+        assert.equal(summaryLines?.length, 1);
+    });
+
+    it('prints the codex trust note when scopes include project alongside user', () => {
+        const {status, stdout} = run(['--client', 'codex', '--scope', 'project,user']);
+
+        assert.equal(status, 0);
+        assert.match(stdout, /trust this folder in Codex/);
+    });
+
+    it('exits non-zero when the scope list contains an unknown value', () => {
+        const {status, stderr} = run(['--client', 'cursor', '--scope', 'project,bogus']);
+
+        assert.equal(status, 1);
+        assert.match(stderr, /Unknown scope/);
+    });
 });
 
 describe('resolveSourceUrl', () => {

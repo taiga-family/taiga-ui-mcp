@@ -20,7 +20,7 @@ interface InitOptions {
     readonly clients: readonly string[];
     readonly version?: string;
     readonly sourceUrl?: string;
-    readonly scope?: string;
+    readonly scopes: readonly string[];
 }
 
 export interface ResolvedClients {
@@ -28,9 +28,9 @@ export interface ResolvedClients {
     readonly unknown: readonly string[];
 }
 
-function collectClients(target: string[], value: string | undefined): void {
-    for (const id of value?.split(',') ?? []) {
-        const trimmed = id.trim();
+function collectValues(target: string[], value: string | undefined): void {
+    for (const raw of value?.split(',') ?? []) {
+        const trimmed = raw.trim();
 
         if (trimmed) {
             target.push(trimmed);
@@ -40,17 +40,17 @@ function collectClients(target: string[], value: string | undefined): void {
 
 export function parseArgs(argv: readonly string[]): InitOptions {
     const clients: string[] = [];
+    const scopes: string[] = [];
     let version: string | undefined;
     let sourceUrl: string | undefined;
-    let scope: string | undefined;
 
     for (let index = 0; index < argv.length; index++) {
         const arg = argv[index];
 
         if (arg === '--client') {
-            collectClients(clients, argv[++index]);
+            collectValues(clients, argv[++index]);
         } else if (arg?.startsWith('--client=')) {
-            collectClients(clients, arg.slice('--client='.length));
+            collectValues(clients, arg.slice('--client='.length));
         } else if (arg === '--version') {
             version = argv[++index];
         } else if (arg?.startsWith('--version=')) {
@@ -60,13 +60,13 @@ export function parseArgs(argv: readonly string[]): InitOptions {
         } else if (arg?.startsWith('--source-url=')) {
             sourceUrl = arg.slice('--source-url='.length);
         } else if (arg === '--scope' || arg === '-s') {
-            scope = argv[++index];
+            collectValues(scopes, argv[++index]);
         } else if (arg?.startsWith('--scope=')) {
-            scope = arg.slice('--scope='.length);
+            collectValues(scopes, arg.slice('--scope='.length));
         }
     }
 
-    return {clients, version, sourceUrl, scope};
+    return {clients, version, sourceUrl, scopes};
 }
 
 // latest -> site root, next / vN -> a versioned docs path; unknown -> undefined.
@@ -161,28 +161,35 @@ async function resolveVersion(
 
 // Missing --scope: ask in a terminal, otherwise default to project.
 export async function resolveScope(
-    scopeOption: string | undefined,
+    scopeOptions: readonly string[],
     title = 'Where should it live?',
     labels: readonly [string, string] = [
         'project — this repo (committable)',
         'user — global for your machine',
     ],
-): Promise<Scope> {
-    if (scopeOption !== undefined) {
-        if (scopeOption === 'project' || scopeOption === 'user') {
-            return scopeOption;
+): Promise<readonly Scope[]> {
+    if (scopeOptions.length > 0) {
+        const scopes: Scope[] = [];
+
+        for (const scope of scopeOptions) {
+            if (scope !== 'project' && scope !== 'user') {
+                fail(`Unknown scope "${scope}". Use "project" or "user".\n`);
+            }
+
+            scopes.push(scope);
         }
 
-        fail(`Unknown scope "${scopeOption}". Use "project" or "user".\n`);
+        return [...new Set(scopes)];
     }
 
     if (!isInteractive()) {
-        return 'project';
+        return ['project'];
     }
 
-    const index = await promptSelect(title, labels, 0);
+    const indices = await promptMultiSelect(title, labels);
+    const scopes = indices.map((index): Scope => (index === 1 ? 'user' : 'project'));
 
-    return index === 1 ? 'user' : 'project';
+    return [...new Set(scopes)];
 }
 
 export function fail(message: string): never {
@@ -195,7 +202,7 @@ export async function runInit(argv: string[]): Promise<void> {
         clients: clientIds,
         version: versionOption,
         sourceUrl: sourceUrlOverride,
-        scope: scopeOption,
+        scopes: scopeOptions,
     } = parseArgs(argv);
 
     const resolved = await resolveClients(clientIds);
@@ -228,32 +235,37 @@ export async function runInit(argv: string[]): Promise<void> {
         );
     }
 
-    const scope = await resolveScope(scopeOption);
+    const scopes = await resolveScope(scopeOptions);
     const env = {cwd: process.cwd(), home: homedir(), platform: process.platform};
     const summaries: string[] = [];
     const notes: string[] = [];
 
     for (const client of resolved.clients) {
-        const effectiveScope = client.userScopeOnly ? 'user' : scope;
-        const filePath = resolveConfigPath(client, effectiveScope, env);
+        const effective = [
+            ...new Set(scopes.map((scope) => (client.userScopeOnly ? 'user' : scope))),
+        ];
 
-        const existed =
-            client.kind === 'json'
-                ? await writeJsonClient(client, filePath, sourceUrl)
-                : await writeTomlClient(client, filePath, sourceUrl);
+        for (const effectiveScope of effective) {
+            const filePath = resolveConfigPath(client, effectiveScope, env);
 
-        summaries.push(
-            `${existed ? 'Updated' : 'Added'} "${SERVER_NAME}" MCP server in ${displayPath(client, effectiveScope, env)} (${client.label}).`,
-        );
+            const existed =
+                client.kind === 'json'
+                    ? await writeJsonClient(client, filePath, sourceUrl)
+                    : await writeTomlClient(client, filePath, sourceUrl);
 
-        if (client.userScopeOnly && scope === 'project') {
-            notes.push(
-                `${client.label} only has a global config, so it was written to ${displayPath(client, effectiveScope, env)} instead of the project.`,
+            summaries.push(
+                `${existed ? 'Updated' : 'Added'} "${SERVER_NAME}" MCP server in ${displayPath(client, effectiveScope, env)} (${client.label}).`,
             );
-        }
 
-        if (client.note !== undefined && effectiveScope === 'project') {
-            notes.push(client.note);
+            if (client.userScopeOnly && scopes.includes('project')) {
+                notes.push(
+                    `${client.label} only has a global config, so it was written to ${displayPath(client, effectiveScope, env)} instead of the project.`,
+                );
+            }
+
+            if (client.note !== undefined && effectiveScope === 'project') {
+                notes.push(client.note);
+            }
         }
     }
 
