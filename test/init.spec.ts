@@ -97,9 +97,10 @@ describe('init command (built CLI)', () => {
         mkdirSync(join(dir, '.vscode'));
         writeFileSync(join(dir, '.vscode/mcp.json'), 'not json{');
 
-        const {status} = runInit(dir, ['--client', 'vscode']);
+        const {status, stderr} = runInit(dir, ['--client', 'vscode']);
 
         assert.notEqual(status, 0);
+        assert.match(stderr, /init failed/);
         assert.equal(readFileSync(join(dir, '.vscode/mcp.json'), 'utf8'), 'not json{');
     });
 

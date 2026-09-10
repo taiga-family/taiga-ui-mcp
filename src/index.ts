@@ -5,7 +5,14 @@ async function main(): Promise<void> {
     if (process.argv[2] === 'init') {
         const {runInit} = await import('./cli/init.js');
 
-        await runInit(process.argv.slice(3));
+        try {
+            await runInit(process.argv.slice(3));
+        } catch (error) {
+            process.stderr.write(
+                `init failed: ${error instanceof Error ? error.message : String(error)}\n`,
+            );
+            process.exit(1);
+        }
 
         return;
     }
