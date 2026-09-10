@@ -87,6 +87,7 @@ export function supportedClientsMessage(): string {
 // Missing --client: pick from a menu in a terminal, otherwise leave undefined for the error path.
 export async function resolveClients(
     ids: readonly string[],
+    title = 'Which MCP client(s)?',
 ): Promise<ResolvedClients | undefined> {
     if (ids.length > 0) {
         const clients: ClientConfig[] = [];
@@ -110,7 +111,7 @@ export async function resolveClients(
     }
 
     const indices = await promptMultiSelect(
-        'Which MCP client(s)?',
+        title,
         CLIENTS.map((client) => client.label),
     );
 
@@ -159,7 +160,14 @@ async function resolveVersion(
 }
 
 // Missing --scope: ask in a terminal, otherwise default to project.
-export async function resolveScope(scopeOption: string | undefined): Promise<Scope> {
+export async function resolveScope(
+    scopeOption: string | undefined,
+    title = 'Where should it live?',
+    labels: readonly [string, string] = [
+        'project — this repo (committable)',
+        'user — global for your machine',
+    ],
+): Promise<Scope> {
     if (scopeOption !== undefined) {
         if (scopeOption === 'project' || scopeOption === 'user') {
             return scopeOption;
@@ -172,11 +180,7 @@ export async function resolveScope(scopeOption: string | undefined): Promise<Sco
         return 'project';
     }
 
-    const index = await promptSelect(
-        'Where should it live?',
-        ['project — this repo (committable)', 'user — global for your machine'],
-        0,
-    );
+    const index = await promptSelect(title, labels, 0);
 
     return index === 1 ? 'user' : 'project';
 }

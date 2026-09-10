@@ -14,7 +14,7 @@ import {readTextFile, removeTomlTable, writeTextFile} from './toml-file.js';
 
 export async function runRemove(argv: string[]): Promise<void> {
     const {clients: clientIds, scope: scopeOption} = parseArgs(argv);
-    const resolved = await resolveClients(clientIds);
+    const resolved = await resolveClients(clientIds, 'Remove from which client(s)?');
 
     if (!resolved) {
         fail(
@@ -35,7 +35,10 @@ export async function runRemove(argv: string[]): Promise<void> {
         );
     }
 
-    const scope = await resolveScope(scopeOption);
+    const scope = await resolveScope(scopeOption, 'Which scope to remove from?', [
+        'project — this repo',
+        'user — global for your machine',
+    ]);
 
     const env: ScopeEnv = {
         cwd: process.cwd(),
