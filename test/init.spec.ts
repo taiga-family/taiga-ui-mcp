@@ -18,10 +18,10 @@ interface McpConfig {
 function runInit(
     cwd: string,
     args: readonly string[],
-): {status: number | null; stderr: string} {
+): {status: number | null; stderr: string; stdout: string} {
     const result = spawnSync('node', [CLI, 'init', ...args], {cwd, encoding: 'utf8'});
 
-    return {status: result.status, stderr: result.stderr};
+    return {status: result.status, stderr: result.stderr, stdout: result.stdout};
 }
 
 function readConfig(path: string): McpConfig {
@@ -248,6 +248,15 @@ describe('init command (built CLI)', () => {
 
         assert.match(toml, /\[mcp_servers\.other\]/);
         assert.equal(toml.match(/\[mcp_servers\.taiga-ui\]/g)?.length, 1);
+    });
+
+    it('prints a Codex trust note only for codex', () => {
+        const codex = runInit(dir, ['--client', 'codex']);
+        const cursor = runInit(dir, ['--client', 'cursor']);
+
+        assert.match(codex.stdout, /trust this folder in Codex/);
+        assert.match(codex.stdout, /~\/\.codex\/config\.toml/);
+        assert.doesNotMatch(cursor.stdout, /trust/);
     });
 
     it('reflects --version v4 in the codex args', () => {

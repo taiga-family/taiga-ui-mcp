@@ -12,6 +12,7 @@ export interface JsonClientConfig {
     readonly configPath: string;
     readonly containerKey: string;
     readonly rootDefaults?: Record<string, unknown>;
+    readonly note?: string;
     buildEntry(sourceUrl: string): JsonEntry;
 }
 
@@ -21,6 +22,7 @@ export interface TomlClientConfig {
     readonly label: string;
     readonly configPath: string;
     readonly tableName: string;
+    readonly note?: string;
     buildEntry(sourceUrl: string): TomlEntry;
 }
 
@@ -97,6 +99,7 @@ export const CLIENTS: readonly ClientConfig[] = [
         label: 'Codex',
         configPath: '.codex/config.toml',
         tableName: 'mcp_servers.taiga-ui',
+        note: 'Codex reads a project .codex/config.toml only in a trusted workspace — trust this folder in Codex, or add the server to ~/.codex/config.toml instead.',
         buildEntry: buildCommandEntry,
     },
 ];

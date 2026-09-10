@@ -211,10 +211,20 @@ export async function runInit(argv: string[]): Promise<void> {
     const restart =
         resolved.clients.length === 1 ? resolved.clients[0]?.label : 'your clients';
 
+    const notes = [
+        ...new Set(
+            resolved.clients
+                .map((client) => client.note)
+                .filter((note): note is string => note !== undefined),
+        ),
+    ];
+
+    const noteLines = notes.map((note) => `Note: ${note}\n`).join('');
+
     process.stdout.write(
         `${summaries.join('\n')}\n` +
             `Source: ${sourceUrl}\n` +
-            `Next: restart ${restart} to load the Taiga UI MCP server.\n`,
+            `Next: restart ${restart} to load the Taiga UI MCP server.\n${noteLines}`,
     );
 }
 
