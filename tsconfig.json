@@ -2,7 +2,6 @@
     "extends": "@taiga-ui/tsconfig",
     "compilerOptions": {
         "baseUrl": "./",
-        "rootDir": "./src",
         "checkJs": false,
         "esModuleInterop": true,
         "module": "NodeNext",
@@ -12,6 +11,6 @@
         "typeRoots": ["node_modules/@types", "node_modules/@taiga-ui/tsconfig"],
         "types": ["node"]
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "test/**/*"],
     "exclude": ["node_modules"]
 }

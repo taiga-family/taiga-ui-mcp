@@ -41,6 +41,54 @@ First, install the Taiga UI MCP server with your client.
 }
 ```
 
+#### Quick install
+
+Prefer a one-liner? Run `init` to write (or merge) the config into your client's project-local file:
+
+```bash
+npx @taiga-ui/mcp init --client claude # writes .mcp.json
+npx @taiga-ui/mcp init --client cursor # writes .cursor/mcp.json
+npx @taiga-ui/mcp init --client vscode # writes .vscode/mcp.json
+npx @taiga-ui/mcp init --client windsurf # writes ~/.codeium/windsurf/mcp_config.json (global only)
+npx @taiga-ui/mcp init --client opencode # writes opencode.json
+npx @taiga-ui/mcp init --client codex # writes .codex/config.toml
+```
+
+Windsurf only reads a machine-global MCP config, so `--client windsurf` always writes
+`~/.codeium/windsurf/mcp_config.json` regardless of `--scope`.
+
+Target another docs version with `--version` — `next`, or a previous major like `v4` (defaults to `latest`):
+
+```bash
+npx @taiga-ui/mcp init --client cursor --version next
+npx @taiga-ui/mcp init --client cursor --version v4
+```
+
+For a fully custom source, `--source-url=...` overrides `--version`.
+
+By default `init` writes a project-local config you can commit to the repo. Pass `--scope user` (short `-s`) to write
+your machine-global config instead — e.g. `~/.cursor/mcp.json` (defaults to `project`). Pass both with
+`--scope project,user` (comma-separated, or repeat the flag) to write the project and global configs in one run:
+
+```bash
+npx @taiga-ui/mcp init --client cursor --scope user # writes ~/.cursor/mcp.json
+npx @taiga-ui/mcp init --client cursor --scope project,user # writes both .cursor/mcp.json and ~/.cursor/mcp.json
+```
+
+Or just run `npx @taiga-ui/mcp init` with no flags to pick the client, docs version, and scope interactively.
+
+#### Removing the server
+
+`remove` is the inverse of `init` — it deletes only the `taiga-ui` entry from a client config, leaving every other
+server untouched. It accepts the same `--client` and `--scope` flags (and the same interactive pickers when omitted):
+
+```bash
+npx @taiga-ui/mcp remove --client cursor # strips taiga-ui from .cursor/mcp.json
+npx @taiga-ui/mcp remove --client codex --scope user # strips it from ~/.codex/config.toml
+```
+
+If the config or the entry is missing, `remove` reports it and exits successfully.
+
 ### Tools
 
 <details>
