@@ -1,3 +1,11 @@
+### [0.3.0](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.2.3...v0.3.0) (2026-09-10)
+
+### 🚀 Features
+
+- add init & remove CLI commands to scaffold/remove the MCP server
+  ([#218](https://github.com/taiga-family/taiga-ui-mcp/pull/218))
+  [(64b42e8)](https://github.com/taiga-family/taiga-ui-mcp/commit/64b42e86fb0d28b3eae7878adf7a1574c36e2642)
+
 ### [0.2.3](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.2.2...v0.2.3) (2026-05-22)
 
 This release contains internal technical improvements only. No changes to functionality, UI, or APIs.
