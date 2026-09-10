@@ -14,7 +14,7 @@ development workflow.
 - **Docs + code snippets**. Full Taiga UI markdown plus ready Angular examples in one place.
 - **Four MCP tools**. Get structured overview with `get_overview`, discover with `get_list_components`, fetch examples
   via `get_component_example`, and access migration guides with `get_migration_guide`.
-- **Configurable & lightweight**. Swap source URL (stable/next) without local Angular install.
+- **Configurable & lightweight**. Pick the docs version (`v5 (latest)` or `v4`) without a local Angular install.
 
 ### Requirements
 
@@ -34,7 +34,7 @@ First, install the Taiga UI MCP server with your client.
       "command": "npx",
       "args": [
         "@taiga-ui/mcp@latest",
-        "--source-url=https://taiga-ui.dev/llms-full.txt" // or file from /next version, if you want
+        "--source-url=https://taiga-ui.dev/llms-full.txt" // or the /v4 version, if you want
       ]
     }
   }
@@ -57,10 +57,10 @@ npx @taiga-ui/mcp init --client codex # writes .codex/config.toml
 Windsurf only reads a machine-global MCP config, so `--client windsurf` always writes
 `~/.codeium/windsurf/mcp_config.json` regardless of `--scope`.
 
-Target another docs version with `--version` — `next`, or a previous major like `v4` (defaults to `latest`):
+Pick the docs version with `--version` — `latest` (v5), or a previous major like `v4` (defaults to `latest`):
 
 ```bash
-npx @taiga-ui/mcp init --client cursor --version next
+npx @taiga-ui/mcp init --client cursor --version latest
 npx @taiga-ui/mcp init --client cursor --version v4
 ```
 
@@ -75,7 +75,8 @@ npx @taiga-ui/mcp init --client cursor --scope user # writes ~/.cursor/mcp.json
 npx @taiga-ui/mcp init --client cursor --scope project,user # writes both .cursor/mcp.json and ~/.cursor/mcp.json
 ```
 
-Or just run `npx @taiga-ui/mcp init` with no flags to pick the client, docs version, and scope interactively.
+Or run `npx @taiga-ui/mcp init` with no flags to pick everything interactively — the client, the docs version
+(`v5 (latest)` or `v4`), and the scope.
 
 #### Removing the server
 
