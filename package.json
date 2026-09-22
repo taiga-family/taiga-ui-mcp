@@ -76,7 +76,7 @@
         "@taiga-ui/configs": "0.529.0",
         "@types/node": "24.12.4",
         "husky": "9.1.7",
-        "tsx": "^4.23.13",
+        "tsx": "4.23.13",
         "typescript": "5.9.3"
     },
     "engines": {
