@@ -3,9 +3,10 @@ import {state} from '../server/server.js';
 import {extractHeaderContent, findComponentsSectionStart} from './extract-header.js';
 import {extractMigrationGuideContent} from './extract-migration-guide.js';
 
-function extractMeta(text: string): {package?: string; kind?: string} {
+function extractMeta(text: string): {package?: string; kind?: string; version?: string} {
     let pkg: string | undefined;
     let kind: string | undefined;
+    let version: string | undefined;
     const pkgMatch = /\*\*Package\*\*:\s*`([^`]+)`/i.exec(text);
 
     if (pkgMatch?.[1]) {
@@ -18,7 +19,13 @@ function extractMeta(text: string): {package?: string; kind?: string} {
         kind = typeMatch[1].trim();
     }
 
-    return {package: pkg, kind};
+    const versionMatch = /\*\*Version\*\*:\s*([^\n]+)/i.exec(text);
+
+    if (versionMatch?.[1]) {
+        version = versionMatch[1].trim();
+    }
+
+    return {package: pkg, kind, version};
 }
 
 export function parseContent(rawContent: string, sourceUrl: string): void {
@@ -69,6 +76,7 @@ export function parseContent(rawContent: string, sourceUrl: string): void {
             content,
             package: meta.package,
             kind: meta.kind,
+            version: meta.version,
         };
     });
 }

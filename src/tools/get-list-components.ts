@@ -20,6 +20,7 @@ export function registerGetListComponentsTool(server: McpServer): void {
                         category: z.string(),
                         package: z.string().nullable(),
                         type: z.string().nullable(),
+                        version: z.string().nullable(),
                     }),
                 ),
             },

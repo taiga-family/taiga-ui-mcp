@@ -3,6 +3,7 @@ export interface QueryResult {
     id?: string;
     package?: string | null;
     type?: string | null;
+    version?: string | null;
     suggestions?: string[];
     content?: string[];
 }
@@ -13,4 +14,5 @@ export interface DocSection {
     content: string;
     package?: string;
     kind?: string;
+    version?: string;
 }
