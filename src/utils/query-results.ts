@@ -45,6 +45,7 @@ export function buildQueryResults(names: string[]): {
             id: section.id,
             package: section.package ?? null,
             type: section.kind ?? null,
+            version: section.version ?? null,
         };
 
         if (snippets.length) {

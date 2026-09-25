@@ -6,6 +6,7 @@ export interface ListedComponent {
     category: string;
     package: string | null;
     type: string | null;
+    version: string | null;
 }
 
 export function constructComponentsList(query = ''): ListedComponent[] {
@@ -27,6 +28,7 @@ export function constructComponentsList(query = ''): ListedComponent[] {
                 category,
                 package: section.package ?? null,
                 type: section.kind ?? null,
+                version: section.version ?? null,
             };
         });
 }

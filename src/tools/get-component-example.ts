@@ -19,6 +19,7 @@ export function registerGetComponentExampleTool(server: McpServer): void {
                         id: z.string().optional(),
                         package: z.string().nullable().optional(),
                         type: z.string().nullable().optional(),
+                        version: z.string().nullable().optional(),
                         suggestions: z.array(z.string()).optional(),
                         content: z.array(z.string()).optional(),
                     }),
