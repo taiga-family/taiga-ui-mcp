@@ -1,3 +1,10 @@
+### [0.4.0](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.3.0...v0.4.0) (2026-10-05)
+
+### 🚀 Features
+
+- expose component added-in version via tools ([#225](https://github.com/taiga-family/taiga-ui-mcp/pull/225))
+  [(679cf47)](https://github.com/taiga-family/taiga-ui-mcp/commit/679cf47b02e54d22e3ff344bf217e9fbf239ae52)
+
 ### [0.3.0](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.2.3...v0.3.0) (2026-09-10)
 
 ### 🚀 Features
