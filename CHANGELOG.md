@@ -1,3 +1,7 @@
+### [0.4.1](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.4.0...v0.4.1) (2026-10-29)
+
+This release contains internal technical improvements only. No changes to functionality, UI, or APIs.
+
 ### [0.4.0](https://github.com/taiga-family/taiga-ui-mcp/compare/v0.3.0...v0.4.0) (2026-10-05)
 
 ### 🚀 Features
