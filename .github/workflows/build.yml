@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: taiga-family/ci/setup-variables@27fd314c374c3df8ff203e6bab6ec03a5acaa7a0 # v2.27.0
-      - uses: taiga-family/ci/setup-node@27fd314c374c3df8ff203e6bab6ec03a5acaa7a0 # v2.27.0
+      - uses: taiga-family/ci/setup-variables@9683a0f31f8f8ee077e7c9d78238f0c0c7514a49 # v2.28.0
+      - uses: taiga-family/ci/setup-node@9683a0f31f8f8ee077e7c9d78238f0c0c7514a49 # v2.28.0
         with:
           node-version: 26.x
       - run: npm run build
@@ -21,8 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: taiga-family/ci/setup-variables@27fd314c374c3df8ff203e6bab6ec03a5acaa7a0 # v2.27.0
-      - uses: taiga-family/ci/setup-node@27fd314c374c3df8ff203e6bab6ec03a5acaa7a0 # v2.27.0
+      - uses: taiga-family/ci/setup-variables@9683a0f31f8f8ee077e7c9d78238f0c0c7514a49 # v2.28.0
+      - uses: taiga-family/ci/setup-node@9683a0f31f8f8ee077e7c9d78238f0c0c7514a49 # v2.28.0
         with:
           node-version: 26.x
       - run: npm test
