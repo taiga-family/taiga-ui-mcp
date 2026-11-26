@@ -1,12 +1,9 @@
-#!/usr/bin/env node
-import {McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
-import {StdioServerTransport} from '@modelcontextprotocol/sdk/server/stdio.js';
+import {McpServer} from '@modelcontextprotocol/server';
 
 import packageJson from '../../package.json' with {type: 'json'};
 import {type DocSection} from '../schemas/doc-types.js';
 import {registerAllTools} from '../tools/index.js';
-import {logError, logInfo} from '../utils/logger.js';
-import {ensureSourceLoaded} from './fetch.js';
+import {setSourceUrl} from './fetch.js';
 
 export interface IndexState {
     sections: DocSection[];
@@ -24,14 +21,21 @@ export const state: IndexState = {
     lastLoadedAt: undefined,
 };
 
-const server = new McpServer(
-    {
-        name: 'taiga-ui-mcp',
-        version: packageJson.version,
-    },
-    {
-        capabilities: {tools: {}},
-        instructions: `
+/**
+ * Builds a Taiga UI MCP server. A pure factory without side effects — used by
+ * both HTTP (stateless per-request) and stdio transports, and by tests.
+ */
+export function buildServer(sourceUrl: string): McpServer {
+    setSourceUrl(sourceUrl);
+
+    const server = new McpServer(
+        {
+            name: 'taiga-ui-mcp',
+            version: packageJson.version,
+        },
+        {
+            capabilities: {tools: {}},
+            instructions: `
 <General Purpose>
 This server provides programmatic access to Taiga UI component documentation for AI assistants.
 Use these tools to discover, understand, and retrieve usage examples for Taiga UI components.
@@ -53,23 +57,10 @@ Use these tools to discover, understand, and retrieve usage examples for Taiga U
 * **Fuzzy Matching:** Component queries support fuzzy matching for flexible searching.
 </Key Concepts>
 `,
-    },
-);
-
-registerAllTools(server);
-
-export async function start(): Promise<void> {
-    try {
-        await ensureSourceLoaded();
-    } catch (error) {
-        logError('Initial source load failed', error);
-    }
-
-    const transport = new StdioServerTransport();
-
-    await server.connect(transport);
-
-    logInfo(
-        `Angular Taiga UI MCP Server running. Fetched source components: ${state.sections.length}`,
+        },
     );
+
+    registerAllTools(server);
+
+    return server;
 }

@@ -18,7 +18,7 @@ development workflow.
 
 ### Requirements
 
-- Node.js 18 or newer
+- Node.js 20 or newer
 - VS Code, Cursor, Windsurf, Claude Desktop, Goose or any other MCP client
 
 ### Getting started
@@ -83,6 +83,29 @@ Prefer manual setup? The standard config works in most of the tools:
   }
 }
 ```
+
+#### HTTP transport (Streamable HTTP)
+
+The server can run as a stateless Streamable HTTP endpoint — useful for remote clients and AI Tools Hub registration.
+Start it with `--transport http`:
+
+```bash
+node dist/index.js \
+  --transport http \
+  --source-url=https://taiga-ui.dev/llms-full.txt \
+  --port 8080 \
+  --host 0.0.0.0 \
+  --endpoint /mcp
+```
+
+- `--transport http|stdio` — transport mode (default `stdio`).
+- `--endpoint <path>` — MCP endpoint path (default `/mcp`).
+- `--host` / `--port` — bind host/port (defaults `0.0.0.0` / `$PORT` or `8080`).
+- `SOURCE_URL`, `PORT`, `HOST`, `MCP_ENDPOINT` env vars are honored as alternatives.
+
+In HTTP mode the server also exposes `/health` and `/ready` probes (return `ok`) for container orchestration.
+
+A Dockerfile is included for containerized deployment; it runs the HTTP mode by default.
 
 #### Removing the server
 
