@@ -23,6 +23,4 @@ RUN npm ci --omit=dev --ignore-scripts
 COPY --from=build /app/dist/ ./dist/
 
 EXPOSE 8080
-# Streamable HTTP, stateless — required for AI Tools Hub (SEP-2575).
-# SOURCE_URL points at the llms-full.txt the server serves from.
 CMD ["node", "dist/index.js", "--transport", "http", "--endpoint", "/mcp"]
