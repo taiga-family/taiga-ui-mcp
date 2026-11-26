@@ -1,4 +1,4 @@
-import {type McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
+import {type McpServer} from '@modelcontextprotocol/server';
 import {z} from 'zod';
 
 import {ensureSourceLoaded} from '../server/fetch.js';
@@ -11,8 +11,8 @@ export function registerGetComponentExampleTool(server: McpServer): void {
             title: 'Get Component Example',
             description:
                 'Return section-related content snippets (formerly examples) for specified documentation section name(s). The presence of id indicates a successful match.',
-            inputSchema: {names: z.array(z.string().min(2)).min(1)},
-            outputSchema: {
+            inputSchema: z.object({names: z.array(z.string().min(2)).min(1)}),
+            outputSchema: z.object({
                 results: z.array(
                     z.object({
                         query: z.string(),
@@ -25,7 +25,7 @@ export function registerGetComponentExampleTool(server: McpServer): void {
                     }),
                 ),
                 matched: z.number(),
-            },
+            }),
         },
         async ({names}: {names: string[]}) => {
             if (!names.length) {

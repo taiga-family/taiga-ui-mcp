@@ -1,4 +1,4 @@
-import {type McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
+import {type McpServer} from '@modelcontextprotocol/server';
 import {z} from 'zod';
 
 import {ensureSourceLoaded} from '../server/fetch.js';
@@ -11,8 +11,8 @@ export function registerGetListComponentsTool(server: McpServer): void {
             title: 'List Components',
             description:
                 'List all Taiga UI documentation section IDs (structured JSON only).',
-            inputSchema: {query: z.string().optional().default('')},
-            outputSchema: {
+            inputSchema: z.object({query: z.string().optional().default('')}),
+            outputSchema: z.object({
                 items: z.array(
                     z.object({
                         id: z.string(),
@@ -23,7 +23,7 @@ export function registerGetListComponentsTool(server: McpServer): void {
                         version: z.string().nullable(),
                     }),
                 ),
-            },
+            }),
         },
         async ({query}: {query?: string}) => {
             await ensureSourceLoaded();

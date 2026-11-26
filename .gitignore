@@ -37,3 +37,7 @@ coverage/
 .cache/
 tmp/
 temp/
+
+# Internal deployment wrapper configs (must NOT be pushed to the public repo).
+# Lives only in the internal tui-angular-mcp deployment repository.
+deploy/

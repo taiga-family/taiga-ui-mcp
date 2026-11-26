@@ -1,4 +1,4 @@
-import {type McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
+import {type McpServer} from '@modelcontextprotocol/server';
 import {z} from 'zod';
 
 import {ensureSourceLoaded} from '../server/fetch.js';
@@ -39,8 +39,8 @@ export function registerGetOverviewTool(server: McpServer): void {
             title: 'Get Documentation Overview',
             description:
                 'Call this tool FIRST to retrieve the fully structured documentation header as JSON. Returns hierarchical sections with parsed content (no raw markdown). Includes installation instructions, critical notices, and subsections with their content and code blocks. This provides essential context before exploring specific components.',
-            inputSchema: z.object({}).optional(),
-            outputSchema: {
+            inputSchema: z.object({}),
+            outputSchema: z.object({
                 title: z.string(),
                 sections: z.array(
                     z.object({
@@ -82,7 +82,7 @@ export function registerGetOverviewTool(server: McpServer): void {
                 ),
                 totalComponents: z.number(),
                 sourceUrl: z.string().optional(),
-            },
+            }),
         },
         async () => {
             await ensureSourceLoaded();

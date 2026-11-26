@@ -69,8 +69,9 @@
     ],
     "prettier": "@taiga-ui/prettier-config",
     "dependencies": {
-        "@modelcontextprotocol/sdk": "1.32.2",
-        "zod": "3.25.76"
+        "@modelcontextprotocol/node": "2.1.2",
+        "@modelcontextprotocol/server": "2.4.0",
+        "zod": "4.6.7"
     },
     "devDependencies": {
         "@taiga-ui/configs": "0.529.0",
@@ -80,6 +81,6 @@
         "typescript": "5.9.3"
     },
     "engines": {
-        "node": ">=18.0.0"
+        "node": ">=20.0.0"
     }
 }

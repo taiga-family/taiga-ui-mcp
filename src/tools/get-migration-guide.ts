@@ -1,4 +1,4 @@
-import {type McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
+import {type McpServer} from '@modelcontextprotocol/server';
 import {z} from 'zod';
 
 import {ensureSourceLoaded} from '../server/fetch.js';
@@ -12,8 +12,8 @@ export function registerGetMigrationGuideTool(server: McpServer): void {
             title: 'Get Migration Guide',
             description:
                 'Returns the complete Migration Guide for Taiga UI updates. Includes step-by-step migration instructions, troubleshooting, and common issues. Call this tool when you need to migrate between Taiga UI versions.',
-            inputSchema: z.object({}).optional(),
-            outputSchema: {
+            inputSchema: z.object({}),
+            outputSchema: z.object({
                 title: z.string(),
                 introduction: z.array(z.string()),
                 sections: z.array(
@@ -32,7 +32,7 @@ export function registerGetMigrationGuideTool(server: McpServer): void {
                             .optional(),
                     }),
                 ),
-            },
+            }),
         },
         async () => {
             await ensureSourceLoaded();

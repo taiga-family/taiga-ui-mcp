@@ -3,13 +3,26 @@ import {state} from './server.js';
 
 // 6-hour refresh window
 const REFRESH_INTERVAL_MS = 6 * 60 * 60 * 1000;
+let configuredSourceUrl: string | undefined;
+
+export function setSourceUrl(url: string): void {
+    configuredSourceUrl = url;
+}
+
+function resolveSourceUrl(): string {
+    const argProvidedUrl =
+        process.argv.find((arg) => arg.startsWith('--source-url='))?.split('=')[1] ??
+        (() => {
+            const idx = process.argv.indexOf('--source-url');
+
+            return idx === -1 ? undefined : process.argv[idx + 1];
+        })();
+
+    return configuredSourceUrl ?? argProvidedUrl ?? process.env.SOURCE_URL ?? '';
+}
 
 export async function fetchSource(): Promise<{url: string; content: string}> {
-    const argProvidedUrl = process.argv
-        .find((arg) => arg.startsWith('--source-url='))
-        ?.split('=')[1];
-
-    const sourceUrl = argProvidedUrl ?? process.env.SOURCE_URL;
+    const sourceUrl = resolveSourceUrl();
 
     if (!sourceUrl) {
         throw new Error(
